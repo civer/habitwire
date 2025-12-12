@@ -114,5 +114,17 @@
     "day": "Tag",
     "activity": "Aktivität",
     "recentCheckins": "Letzte Check-ins"
+  },
+  "apiKeys": {
+    "title": "API-Schlüssel",
+    "create": "API-Schlüssel erstellen",
+    "name": "Name",
+    "namePlaceholder": "z.B. CLI-Zugriff",
+    "saveKey": "Schlüssel speichern!",
+    "saveKeyDescription": "Dieser Schlüssel wird nur einmal angezeigt. Jetzt kopieren.",
+    "done": "Fertig",
+    "error": "Fehler",
+    "createError": "Schlüssel konnte nicht erstellt werden",
+    "copiedToClipboard": "In Zwischenablage kopiert"
   }
 }

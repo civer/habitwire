@@ -9,6 +9,7 @@ beforeAll(async () => {
   const require = createRequire(import.meta.url)
   const { pushSchema } = require('drizzle-kit/api') as typeof import('drizzle-kit/api')
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { apply } = await pushSchema(schema, db as any)
   await apply()
 })

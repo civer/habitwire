@@ -43,7 +43,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!
-  const habit = await getHabitOrThrow(event, id)
+  const _habit = await getHabitOrThrow(event, id)
 
   const body = await validateBody(event, checkinSchema)
   const checkDate = body.date || getTodayLocal()

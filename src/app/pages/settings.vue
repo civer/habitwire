@@ -2,7 +2,7 @@
 import { getErrorMessage } from '~/types/error'
 import type { UserResponse } from '~/types/api'
 
-const { t } = useI18n()
+const { t: _t } = useI18n()
 const toast = useToast()
 
 const categoryKey = ref(0)

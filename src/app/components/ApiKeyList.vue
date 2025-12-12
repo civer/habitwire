@@ -12,20 +12,20 @@ async function deleteKey(id: string) {
     await $fetch(`/api/v1/keys/${id}`, { method: 'DELETE' })
     await refresh()
     toast.add({
-      title: 'API Key deleted',
+      title: t('settings.apiKeys.deleteSuccess'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to delete key'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('settings.apiKeys.deleteError')),
       color: 'error'
     })
   }
 }
 
 function formatDate(date: string | null) {
-  if (!date) return 'Never'
+  if (!date) return t('common.never')
   return new Date(date).toLocaleDateString()
 }
 </script>
@@ -35,7 +35,7 @@ function formatDate(date: string | null) {
     v-if="!keys?.length"
     class="text-center py-8 text-gray-500"
   >
-    No API keys yet
+    {{ t('settings.apiKeys.empty') }}
   </div>
 
   <div
@@ -52,7 +52,7 @@ function formatDate(date: string | null) {
           {{ key.name }}
         </p>
         <p class="text-sm text-gray-500">
-          Last used: {{ formatDate(key.last_used) }}
+          {{ t('settings.apiKeys.lastUsed') }}: {{ formatDate(key.last_used) }}
         </p>
       </div>
 

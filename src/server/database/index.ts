@@ -6,6 +6,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 // Both have identical .query API, so TypeScript accepts either
 type DbInstance = PgliteDatabase<typeof schema> | NodePgDatabase<typeof schema>
 
+// eslint-disable-next-line import/no-mutable-exports
 let db: DbInstance
 
 if (process.env.NODE_ENV === 'test') {

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { HabitResponse, HabitStatsResponse, CheckinResponse } from '~/types/api'
 
-const { t } = useI18n()
+const { t: _t } = useI18n()
 const route = useRoute()
-const toast = useToast()
+const _toast = useToast()
 
 const habitId = route.params.id as string
 
 const { data: habit, error: habitError } = await useFetch<HabitResponse>(`/api/v1/habits/${habitId}`)
-const { data: stats, refresh: refreshStats } = await useFetch<HabitStatsResponse>(`/api/v1/habits/${habitId}/stats`)
-const { data: checkins, refresh: refreshCheckins } = await useFetch<CheckinResponse[]>(`/api/v1/habits/${habitId}/checkins`, {
+const { data: stats, refresh: _refreshStats } = await useFetch<HabitStatsResponse>(`/api/v1/habits/${habitId}/stats`)
+const { data: checkins, refresh: _refreshCheckins } = await useFetch<CheckinResponse[]>(`/api/v1/habits/${habitId}/checkins`, {
   query: { limit: 30 }
 })
 

@@ -20,7 +20,7 @@ const emit = defineEmits<{
   'checked': []
 }>()
 
-const { t } = useI18n()
+const { t: _t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)

@@ -36,8 +36,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     emit('created')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to create key'),
+      title: t('apiKeys.error'),
+      description: getErrorMessage(error, t('apiKeys.createError')),
       color: 'error'
     })
   } finally {
@@ -49,7 +49,7 @@ function copyKey() {
   if (newKey.value) {
     navigator.clipboard.writeText(newKey.value)
     toast.add({
-      title: 'Copied to clipboard',
+      title: t('apiKeys.copiedToClipboard'),
       color: 'success'
     })
   }
@@ -65,7 +65,7 @@ function closeModal() {
   <UModal v-model:open="open">
     <UButton
       icon="i-lucide-plus"
-      label="Create API Key"
+      :label="$t('apiKeys.create')"
       @click="open = true"
     />
 
@@ -73,7 +73,7 @@ function closeModal() {
       <UCard>
         <template #header>
           <h3 class="text-lg font-semibold">
-            Create API Key
+            {{ $t('apiKeys.create') }}
           </h3>
         </template>
 
@@ -85,8 +85,8 @@ function closeModal() {
           <UAlert
             color="warning"
             icon="i-lucide-alert-triangle"
-            title="Save this key!"
-            description="This key will only be shown once. Copy it now."
+            :title="$t('apiKeys.saveKey')"
+            :description="$t('apiKeys.saveKeyDescription')"
           />
 
           <div class="flex gap-2">
@@ -106,7 +106,7 @@ function closeModal() {
             color="neutral"
             @click="closeModal"
           >
-            Done
+            {{ $t('apiKeys.done') }}
           </UButton>
         </div>
 

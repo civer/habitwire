@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { eq } from 'drizzle-orm'
-import './setup'
 import { db, schema } from './setup'
 import { hashApiKey, generateApiKey } from '@server/utils/auth'
 

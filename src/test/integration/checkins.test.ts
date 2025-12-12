@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { eq, and } from 'drizzle-orm'
-import './setup'
 import { db, schema } from './setup'
 
 describe('Checkins Integration', () => {
@@ -90,7 +89,7 @@ describe('Checkins Integration', () => {
       const { habit } = await createUserWithHabit()
 
       // First checkin
-      const [first] = await db.insert(schema.checkins).values({
+      await db.insert(schema.checkins).values({
         habitId: habit.id,
         date: '2025-12-31',
         notes: 'First note'

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { eq, and } from 'drizzle-orm'
-import './setup'
 import { db, schema } from './setup'
 
 describe('Habits Integration', () => {

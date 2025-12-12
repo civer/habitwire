@@ -1,6 +1,6 @@
 import { eq, and, gte, lte, inArray, asc, desc } from 'drizzle-orm'
 import { db } from '@server/database'
-import { habits, categories, checkins, users } from '@server/database/schema'
+import { habits, checkins, users } from '@server/database/schema'
 import { calculateCurrentStreak } from '@server/utils/streaks'
 import { validateQuery, habitsQuerySchema } from '@server/utils/validation'
 import { formatDateLocal } from '@server/utils/date'

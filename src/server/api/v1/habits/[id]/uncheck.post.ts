@@ -35,7 +35,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const habitId = getRouterParam(event, 'id')!
-  const habit = await getHabitOrThrow(event, habitId)
+  await getHabitOrThrow(event, habitId) // Validate habit exists
 
   const body = await validateBody(event, uncheckSchema)
   const date = body.date || getTodayLocal()

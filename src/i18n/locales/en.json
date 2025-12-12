@@ -114,5 +114,17 @@
     "day": "day",
     "activity": "Activity",
     "recentCheckins": "Recent check-ins"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "create": "Create API Key",
+    "name": "Name",
+    "namePlaceholder": "e.g. CLI Access",
+    "saveKey": "Save this key!",
+    "saveKeyDescription": "This key will only be shown once. Copy it now.",
+    "done": "Done",
+    "error": "Error",
+    "createError": "Failed to create key",
+    "copiedToClipboard": "Copied to clipboard"
   }
 }
