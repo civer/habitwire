@@ -10,9 +10,9 @@ type DbInstance = PgliteDatabase<typeof schema> | NodePgDatabase<typeof schema>
 let db: DbInstance
 
 // Check if we're in build phase (Nitro build sets NODE_ENV=production during build)
-const isBuildPhase = import.meta.env?.MODE === 'production' ||
-                     process.env.NITRO_PRESET === 'node-server' ||
-                     (process.env.NODE_ENV === 'production' && !process.env.DB_HOST)
+const isBuildPhase = import.meta.env?.MODE === 'production'
+  || process.env.NITRO_PRESET === 'node-server'
+  || (process.env.NODE_ENV === 'production' && !process.env.DB_HOST)
 
 if (isBuildPhase) {
   // During build, create a dummy instance that will be properly initialized at runtime
