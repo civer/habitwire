@@ -1,0 +1,1 @@
+ALTER TABLE "habits" ADD COLUMN "default_increment" numeric(10, 2);

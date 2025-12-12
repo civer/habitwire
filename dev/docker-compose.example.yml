@@ -1,0 +1,26 @@
+# HabitWire - Development Database
+# Nur PostgreSQL für lokale Entwicklung
+#
+# Kopiere diese Datei zu docker-compose.yml und passe die Werte an:
+#   cp docker-compose.example.yml docker-compose.yml
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: habitwire-dev-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - habitwire_dev_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=habitwire
+      - POSTGRES_PASSWORD=habitwire_dev
+      - POSTGRES_DB=habitwire
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U habitwire"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  habitwire_dev_data:

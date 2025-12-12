@@ -1,0 +1,1 @@
+ALTER TABLE "habits" ADD COLUMN "habit_type" text DEFAULT 'SIMPLE' NOT NULL;

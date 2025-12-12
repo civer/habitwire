@@ -1,0 +1,118 @@
+{
+  "app": {
+    "name": "HabitWire"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Sign in",
+    "loginFailed": "Login failed",
+    "invalidCredentials": "Invalid credentials",
+    "signInPrompt": "Sign in to your account",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password changed successfully",
+    "passwordChangeFailed": "Failed to change password",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required"
+  },
+  "habits": {
+    "title": "Habits",
+    "noHabits": "No habits yet",
+    "createFirst": "Create your first habit",
+    "create": "Create habit",
+    "edit": "Edit habit",
+    "delete": "Delete habit",
+    "archive": "Archive",
+    "archived": "Archived",
+    "check": "Check",
+    "uncheck": "Uncheck",
+    "skip": "Skip",
+    "skipped": "Skipped",
+    "completed": "Completed",
+    "habitTitle": "Title",
+    "description": "Description",
+    "frequency": "Frequency",
+    "frequencyDaily": "Daily",
+    "frequencyWeekly": "Weekly",
+    "frequencyCustom": "Custom",
+    "activeDays": "Active days",
+    "timesPerWeek": "Times per week",
+    "habitType": "Type",
+    "habitTypeSimple": "Simple check",
+    "habitTypeTarget": "Target value",
+    "targetValue": "Target",
+    "defaultIncrement": "Default increment",
+    "currentValue": "Current",
+    "unit": "Unit",
+    "units": "units",
+    "icon": "Icon",
+    "enterValue": "Enter value",
+    "complete": "Complete",
+    "reset": "Reset",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "noHabitsInCategory": "No habits in this category"
+  },
+  "categories": {
+    "title": "Categories",
+    "create": "Create category",
+    "edit": "Edit category",
+    "delete": "Delete category",
+    "name": "Name",
+    "color": "Color",
+    "noCategory": "No category",
+    "allCategories": "All categories"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "add": "Add",
+    "today": "Today",
+    "settings": "Settings",
+    "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "todayProgress": "Today's progress",
+    "streak": "Streak",
+    "completionRate": "Completion rate"
+  },
+  "settings": {
+    "general": "General",
+    "groupByCategory": "Group by category",
+    "groupByCategoryDescription": "Group habits by their category on the dashboard",
+    "allowBackfill": "Allow backfill",
+    "allowBackfillDescription": "Allow checking off habits for past days in the week view",
+    "skippedBreaksStreak": "Skipped breaks streak",
+    "skippedBreaksStreakDescription": "Skipping a habit counts as breaking the streak"
+  },
+  "stats": {
+    "currentStreak": "Current streak",
+    "longestStreak": "Longest streak",
+    "completionRate": "Completion rate",
+    "totalCheckins": "Total check-ins",
+    "days": "days",
+    "day": "day",
+    "activity": "Activity",
+    "recentCheckins": "Recent check-ins"
+  }
+}

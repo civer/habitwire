@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+src/node_modules/
+
+# Build outputs
+src/.nuxt/
+src/.output/
+src/dist/
+
+# Development
+dev/
+.claude/
+concept/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Environment (secrets)
+src/.env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+LICENSE

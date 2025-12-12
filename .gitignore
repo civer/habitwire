@@ -1,0 +1,54 @@
+# Nuxt
+src/.nuxt/
+src/.output/
+src/dist/
+
+# Dependencies
+node_modules/
+
+# Environment (only src/.env for development)
+src/.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Dev Docker (enthält lokale Passwörter)
+dev/docker-compose.yml
+
+# Temporary files
+tmp/
+temp/
+
+# Local project folders
+concept/
+
+# AI file exclusion
+.claude/
+CLAUDE.md
+claude.md
+
+.gemini/
+GEMINI.md
+gemini.md
+
+.codex/
+CODEX.md
+codex.md
+
+AGENTS.md
