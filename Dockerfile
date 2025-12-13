@@ -12,7 +12,8 @@ RUN npm ci
 # Copy source code
 COPY src/ ./
 
-# Build the application
+# Build the application (NUXT_BUILD_PHASE tells server code to skip DB initialization)
+ENV NUXT_BUILD_PHASE=true
 RUN npm run build
 
 # Production stage

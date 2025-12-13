@@ -9,8 +9,9 @@ type DbInstance = PgliteDatabase<typeof schema> | NodePgDatabase<typeof schema>
 // eslint-disable-next-line import/no-mutable-exports
 let db: DbInstance
 
-// Check if we're in build phase (Nitro build sets NODE_ENV=production during build)
-const isBuildPhase = process.env.NITRO_PRESET === 'node-server'
+// Check if we're in build phase
+const isBuildPhase = process.env.NUXT_BUILD_PHASE === 'true'
+  || process.env.NITRO_PRESET === 'node-server'
   || (process.env.NODE_ENV === 'production' && !process.env.DB_HOST)
 
 if (isBuildPhase) {

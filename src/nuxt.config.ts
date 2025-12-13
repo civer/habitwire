@@ -54,11 +54,6 @@ export default defineNuxtConfig({
         target: 'es2022'
       }
     },
-    // Include migrations folder in production build
-    serverAssets: [{
-      baseName: 'migrations',
-      dir: './server/database/migrations'
-    }],
     experimental: {
       openAPI: true
     },

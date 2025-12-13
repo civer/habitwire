@@ -6,7 +6,7 @@ if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !pro
 
 export default defineConfig({
   schema: './server/database/schema.ts',
-  out: './server/database/migrations',
+  out: './server/assets/migrations',
   dialect: 'postgresql',
   dbCredentials: {
     host: process.env.DB_HOST,
