@@ -25,7 +25,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true },
     // Rate limit auth endpoints more strictly
     '/api/v1/auth/login': {
       security: {

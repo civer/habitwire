@@ -28,8 +28,10 @@ Thumbs.db
 *.db
 *.sqlite
 
-# Dev Docker (enthält lokale Passwörter)
+# Docker Compose (enthält lokale Passwörter)
 dev/docker-compose.yml
+docker-compose.yml
+docker-compose.local.yml
 
 # Temporary files
 tmp/

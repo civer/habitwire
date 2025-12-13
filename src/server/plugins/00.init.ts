@@ -126,6 +126,8 @@ async function seedInitialUser(): Promise<void> {
   if (!initialPassword) {
     initialPassword = generateSecurePassword(20)
     passwordWasGenerated = true
+  } else {
+    console.log('[init] Using password from INITIAL_PASSWORD environment variable')
   }
 
   const passwordHash = await hashPassword(initialPassword)
