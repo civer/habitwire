@@ -10,6 +10,7 @@ definePageMeta({
 const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
+const { fetch: refreshSession } = useUserSession()
 
 const schema = z.object({
   username: z.string().min(1, t('validation.usernameRequired')),
@@ -31,6 +32,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       method: 'POST',
       body: event.data
     })
+    await refreshSession()
     router.push('/')
   } catch (error) {
     toast.add({
