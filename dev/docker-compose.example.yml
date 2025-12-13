@@ -4,6 +4,8 @@
 # Kopiere diese Datei zu docker-compose.yml und passe die Werte an:
 #   cp docker-compose.example.yml docker-compose.yml
 
+name: habitwire-dev
+
 services:
   db:
     image: postgres:16-alpine
@@ -11,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - habitwire_dev_data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=habitwire
       - POSTGRES_PASSWORD=habitwire_dev
@@ -23,4 +25,4 @@ services:
       retries: 5
 
 volumes:
-  habitwire_dev_data:
+  data:

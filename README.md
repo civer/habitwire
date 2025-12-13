@@ -57,6 +57,8 @@ Self-hosted, API-first habit tracker with a modern web UI.
 Create a `docker-compose.yml`:
 
 ```yaml
+name: habitwire
+
 services:
   habitwire:
     image: civer/habitwire:latest
@@ -75,7 +77,7 @@ services:
   db:
     image: postgres:16-alpine
     volumes:
-      - habitwire_data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=habitwire
       - POSTGRES_USER=habitwire
@@ -87,7 +89,7 @@ services:
       retries: 5
 
 volumes:
-  habitwire_data:
+  data:
 ```
 
 > **First start:** Check container logs with `docker compose logs habitwire` to see the auto-generated admin password.
@@ -171,11 +173,11 @@ Build and run HabitWire locally with Docker:
 
 ```yaml
 # docker-compose.local.yml
+name: habitwire
+
 services:
   habitwire:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - "3000:3000"
     environment:
@@ -191,7 +193,7 @@ services:
   db:
     image: postgres:16-alpine
     volumes:
-      - habitwire_data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=habitwire
       - POSTGRES_USER=habitwire
@@ -203,7 +205,7 @@ services:
       retries: 5
 
 volumes:
-  habitwire_data:
+  data:
 ```
 
 ```bash

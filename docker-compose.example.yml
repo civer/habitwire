@@ -1,0 +1,42 @@
+# HabitWire - Production Docker Compose
+# Copy to docker-compose.yml and adjust passwords before use:
+#   cp docker-compose.example.yml docker-compose.yml
+
+name: habitwire
+
+services:
+  habitwire:
+    image: civer/habitwire:latest
+    # build: .  # Uncomment for local builds
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=habitwire
+      - DB_USER=habitwire
+      - DB_PASSWORD=change-me-db-password
+      - NUXT_SESSION_PASSWORD=change-me-min-32-characters-long!
+      # Optional:
+      # - INITIAL_USER=admin
+      # - INITIAL_PASSWORD=your-secure-password
+      # - RUN_MIGRATIONS=true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=habitwire
+      - POSTGRES_USER=habitwire
+      - POSTGRES_PASSWORD=change-me-db-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U habitwire"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data:
