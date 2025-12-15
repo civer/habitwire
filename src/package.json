@@ -1,5 +1,6 @@
 {
-  "name": "src",
+  "name": "habitwire",
+  "version": "0.9.3",
   "private": true,
   "type": "module",
   "scripts": {

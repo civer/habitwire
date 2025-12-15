@@ -207,8 +207,8 @@ async function check(value?: number, date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to check habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -228,8 +228,8 @@ async function skip(date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to skip habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -252,8 +252,8 @@ async function uncheck(date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to uncheck habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -272,13 +272,13 @@ async function archive() {
     emit('checked')
     toast.add({
       title: t('habits.archive'),
-      description: 'Habit archived',
+      description: t('habits.habitArchived'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to archive habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -469,21 +469,11 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
 
         <!-- Actions (mobile only) -->
         <div class="flex md:hidden items-center gap-1">
-          <UButton
-            v-if="!isCompleted && !isSkipped && !isTargetHabit"
-            :loading="loading"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            size="xs"
-            :aria-label="$t('habits.skip')"
-            class="hidden sm:flex"
-            @click="skip()"
-          />
           <UDropdownMenu
             :items="[[
               { label: $t('habits.edit'), icon: 'i-lucide-pencil', to: `/habits/${habit.id}/edit` },
               { label: isCompleted ? $t('habits.uncheck') : $t('habits.check'), icon: isCompleted ? 'i-lucide-rotate-ccw' : 'i-lucide-check', onSelect: toggleCheck },
+              ...(!isCompleted && !isSkipped && !isTargetHabit ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
               { label: $t('habits.archive'), icon: 'i-lucide-archive', onSelect: archive }
             ]]"
           >
@@ -525,25 +515,11 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
 
       <!-- Actions (desktop - after week view) -->
       <div class="hidden md:flex items-center gap-1 ml-2">
-        <!-- Skip button or placeholder for alignment -->
-        <UButton
-          v-if="!isCompleted && !isSkipped && !isTargetHabit"
-          :loading="loading"
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-x"
-          size="xs"
-          :aria-label="$t('habits.skip')"
-          @click="skip()"
-        />
-        <div
-          v-else
-          class="w-6 h-6"
-        />
         <UDropdownMenu
           :items="[[
             { label: $t('habits.edit'), icon: 'i-lucide-pencil', to: `/habits/${habit.id}/edit` },
             { label: isCompleted ? $t('habits.uncheck') : $t('habits.check'), icon: isCompleted ? 'i-lucide-rotate-ccw' : 'i-lucide-check', onSelect: toggleCheck },
+            ...(!isCompleted && !isSkipped && !isTargetHabit ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
             { label: $t('habits.archive'), icon: 'i-lucide-archive', onSelect: archive }
           ]]"
         >

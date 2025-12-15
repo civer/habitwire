@@ -15,7 +15,7 @@ const loading = ref(false)
 const newKey = ref<string | null>(null)
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required')
+  name: z.string().min(1, t('validation.required', { field: t('apiKeys.name') }))
 })
 
 type Schema = z.output<typeof schema>
@@ -119,13 +119,13 @@ function closeModal() {
           @submit="onSubmit"
         >
           <UFormField
-            label="Name"
+            :label="$t('apiKeys.name')"
             name="name"
             required
           >
             <UInput
               v-model="state.name"
-              placeholder="e.g. CLI Access"
+              :placeholder="$t('apiKeys.namePlaceholder')"
               class="w-full"
               autofocus
             />
@@ -137,7 +137,7 @@ function closeModal() {
               :loading="loading"
               class="flex-1"
             >
-              Create
+              {{ $t('apiKeys.create') }}
             </UButton>
             <UButton
               color="neutral"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useI18n()
+
 const props = defineProps<{
   checkins: { date: string, value: number | null, skipped: boolean }[]
   habitType: string
@@ -181,15 +183,15 @@ const chartOptions = computed(() => {
 
         let status = ''
         if (value === -1) {
-          status = 'Skipped'
+          status = t('habits.skipped')
         } else if (value === 0) {
-          status = 'No activity'
+          status = t('stats.noActivity')
         } else if (isTarget.value) {
           const percent = Math.round((value / targetNum.value) * 100)
           const unit = props.unit || ''
           status = `${value}/${targetNum.value}${unit} (${percent}%)`
         } else {
-          status = 'Completed'
+          status = t('habits.completed')
         }
 
         return `<div class="px-2 py-1 text-sm">
@@ -215,7 +217,7 @@ const chartOptions = computed(() => {
       />
       <!-- Legend -->
       <div class="flex items-center justify-end gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
-        <span>Less</span>
+        <span>{{ t('stats.less') }}</span>
         <div class="w-[10px] h-[10px] rounded-[2px] bg-gray-200 dark:bg-gray-800" />
         <div
           class="w-[10px] h-[10px] rounded-[2px]"
@@ -233,7 +235,7 @@ const chartOptions = computed(() => {
           class="w-[10px] h-[10px] rounded-[2px]"
           :style="{ backgroundColor: baseColor }"
         />
-        <span>More</span>
+        <span>{{ t('stats.more') }}</span>
       </div>
     </div>
   </ClientOnly>

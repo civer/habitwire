@@ -10,7 +10,7 @@ export interface ApiError {
   message?: string
 }
 
-export function getErrorMessage(error: unknown, fallback: string): string {
+export function getErrorMessage(error: unknown, fallback = 'An error occurred'): string {
   if (error && typeof error === 'object') {
     const e = error as ApiError
     return e.data?.message || e.message || fallback

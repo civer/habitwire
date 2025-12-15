@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import pkg from './package.json'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -25,7 +26,10 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
-    rateLimitPerMinute: 1000 // RATE_LIMIT_PER_MINUTE from .env
+    rateLimitPerMinute: 1000, // RATE_LIMIT_PER_MINUTE from .env
+    public: {
+      version: pkg.version
+    }
   },
 
   alias: {

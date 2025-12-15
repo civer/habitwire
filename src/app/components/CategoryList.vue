@@ -86,13 +86,13 @@ async function saveEdit() {
     editModalOpen.value = false
     toast.add({
       title: t('categories.edit'),
-      description: 'Category updated',
+      description: t('categories.categoryUpdated'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to update category'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -106,13 +106,13 @@ async function deleteCategory(id: string) {
     await refresh()
     toast.add({
       title: t('categories.delete'),
-      description: 'Category deleted',
+      description: t('categories.categoryDeleted'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to delete category'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   }

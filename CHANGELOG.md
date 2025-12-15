@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2024-12-15
+
+### Added
+- Archive management page to view and restore archived habits
+- Version number display in header and login page
+- Archive link on dashboard (only visible when archived habits exist)
+
+### Fixed
+- Complete i18n coverage for all UI strings (toast messages, heatmap, error messages)
+- Form validation for WEEKLY frequency now requires at least one active day
+- Form validation for CUSTOM frequency properly validates frequency value
+- Validation errors now clear when switching between frequency types
+- Archive link updates instantly when archiving a habit
+- Skip action moved to dropdown menu for better UX on mobile and desktop
+
+### Changed
+- App description now translatable via i18n
+- Simplified CI pipeline with documented branching strategy
+
 ## [0.9.2] - 2024-12-15
 
 ### Added
@@ -83,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database schema may change before 1.0 release (migrations will be provided)
 - Multi-user support planned for future releases
 
+[0.9.3]: https://github.com/civer/habitwire/releases/tag/v0.9.3
 [0.9.2]: https://github.com/civer/habitwire/releases/tag/v0.9.2
 [0.9.1]: https://github.com/civer/habitwire/releases/tag/v0.9.1
 [0.9.0]: https://github.com/civer/habitwire/releases/tag/v0.9.0
