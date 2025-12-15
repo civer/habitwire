@@ -10,12 +10,12 @@ const toast = useToast()
 
 const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categories')
 
-const schema = z.object({
+const baseSchema = z.object({
   title: z.string().min(1, t('validation.required', { field: t('habits.habitTitle') })),
   description: z.string().optional(),
   habit_type: z.enum(['SIMPLE', 'TARGET']),
   frequency_type: z.enum(['DAILY', 'WEEKLY', 'CUSTOM']),
-  frequency_value: z.coerce.number().min(1).optional(),
+  frequency_value: z.coerce.number().optional(),
   active_days: z.array(z.number()).optional(),
   target_value: z.union([z.coerce.number().positive(), z.null(), z.literal('')]).optional(),
   default_increment: z.union([z.coerce.number().positive(), z.null(), z.literal('')]).optional(),
@@ -23,6 +23,25 @@ const schema = z.object({
   category_id: z.string().nullish(),
   icon: z.string().optional(),
   color: z.string().optional()
+})
+
+const schema = baseSchema.superRefine((data, ctx) => {
+  // WEEKLY requires at least one active day
+  if (data.frequency_type === 'WEEKLY' && (!data.active_days || data.active_days.length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: t('validation.selectAtLeastOneDay'),
+      path: ['active_days']
+    })
+  }
+  // CUSTOM requires frequency_value >= 1
+  if (data.frequency_type === 'CUSTOM' && (!data.frequency_value || data.frequency_value < 1)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: t('validation.minValue', { min: 1 }),
+      path: ['frequency_value']
+    })
+  }
 })
 
 type Schema = z.output<typeof schema>
@@ -92,6 +111,12 @@ const presetColors = [
 ]
 
 const loading = ref(false)
+const formRef = ref()
+
+// Clear form errors when frequency type changes
+watch(() => state.frequency_type, () => {
+  formRef.value?.clear()
+})
 
 const habitTypeItems = computed(() => [
   { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
@@ -129,14 +154,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     })
     toast.add({
       title: t('habits.create'),
-      description: 'Habit created successfully',
+      description: t('habits.habitCreated'),
       color: 'success'
     })
     router.push('/')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to create habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -165,6 +190,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </template>
 
       <UForm
+        ref="formRef"
         :schema="schema"
         :state="state"
         class="space-y-4"

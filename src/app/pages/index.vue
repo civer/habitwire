@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import type { HabitWithCheckinsResponse, CategoryResponse, UserResponse } from '~/types/api'
+import type { HabitWithCheckinsResponse, HabitResponse, CategoryResponse, UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 
 const { data: habits, refresh: refreshHabits } = await useFetch<HabitWithCheckinsResponse[]>('/api/v1/habits')
+const { data: archivedHabits, refresh: refreshArchivedHabits } = await useFetch<HabitResponse[]>('/api/v1/habits/archived')
+
+async function refreshAllHabits() {
+  await Promise.all([refreshHabits(), refreshArchivedHabits()])
+}
 const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categories')
 const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
+
+const hasArchivedHabits = computed(() => (archivedHabits.value?.length ?? 0) > 0)
 
 const allowBackfill = computed(() => userData.value?.user?.settings?.allowBackfill ?? false)
 const groupByCategory = computed(() => userData.value?.user?.settings?.groupByCategory ?? true)
@@ -208,7 +215,7 @@ const showCategoryHeaders = computed(() => {
             :allow-backfill="allowBackfill"
             :days-to-show="desktopDaysToShow"
             :week-starts-on="weekStartsOn"
-            @checked="refreshHabits"
+            @checked="refreshAllHabits"
           />
         </div>
       </div>
@@ -235,8 +242,25 @@ const showCategoryHeaders = computed(() => {
         :allow-backfill="allowBackfill"
         :days-to-show="desktopDaysToShow"
         :week-starts-on="weekStartsOn"
-        @checked="refreshHabits"
+        @checked="refreshAllHabits"
       />
+    </div>
+
+    <!-- Archive link -->
+    <div
+      v-if="hasArchivedHabits"
+      class="text-center pt-4"
+    >
+      <NuxtLink
+        to="/habits/archived"
+        class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors"
+      >
+        <UIcon
+          name="i-lucide-archive"
+          class="w-4 h-4"
+        />
+        {{ $t('habits.viewArchived') }}
+      </NuxtLink>
     </div>
   </div>
 </template>

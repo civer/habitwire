@@ -11,6 +11,7 @@ const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
+const runtimeConfig = useRuntimeConfig()
 
 const schema = z.object({
   username: z.string().min(1, t('validation.usernameRequired')),
@@ -104,8 +105,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </UForm>
 
         <template #footer>
-          <div class="flex justify-center">
+          <div class="flex flex-col items-center gap-2">
             <LanguageSwitcher />
+            <span class="text-xs text-gray-400 dark:text-gray-500">v{{ runtimeConfig.public.version }}</span>
           </div>
         </template>
       </UCard>

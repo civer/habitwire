@@ -12,13 +12,13 @@ async function deleteKey(id: string) {
     await $fetch(`/api/v1/keys/${id}`, { method: 'DELETE' })
     await refresh()
     toast.add({
-      title: t('settings.apiKeys.deleteSuccess'),
+      title: t('apiKeys.deleteSuccess'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
       title: t('common.error'),
-      description: getErrorMessage(error, t('settings.apiKeys.deleteError')),
+      description: getErrorMessage(error, t('apiKeys.deleteError')),
       color: 'error'
     })
   }
@@ -35,7 +35,7 @@ function formatDate(date: string | null) {
     v-if="!keys?.length"
     class="text-center py-8 text-gray-500"
   >
-    {{ t('settings.apiKeys.empty') }}
+    {{ t('apiKeys.empty') }}
   </div>
 
   <div
@@ -52,7 +52,7 @@ function formatDate(date: string | null) {
           {{ key.name }}
         </p>
         <p class="text-sm text-gray-500">
-          {{ t('settings.apiKeys.lastUsed') }}: {{ formatDate(key.last_used) }}
+          {{ t('apiKeys.lastUsed') }}: {{ formatDate(key.last_used) }}
         </p>
       </div>
 

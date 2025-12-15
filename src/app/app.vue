@@ -14,7 +14,7 @@ useHead({
 })
 
 const title = computed(() => t('app.name'))
-const description = 'Self-hosted habit tracker'
+const description = computed(() => t('app.description'))
 
 useSeoMeta({
   title,
