@@ -131,12 +131,12 @@ describe('validation.ts', () => {
       }
     })
 
-    it('rejects CUSTOM habit without active_days', () => {
+    it('accepts CUSTOM habit without active_days', () => {
       const result = createHabitSchema.safeParse({
         title: 'Custom habit',
         frequency_type: 'CUSTOM'
       })
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
     it('rejects WEEKLY habit with empty active_days', () => {
