@@ -98,12 +98,18 @@
   },
   "settings": {
     "general": "General",
+    "display": "Display",
+    "security": "Security",
     "groupByCategory": "Group by category",
     "groupByCategoryDescription": "Group habits by their category on the dashboard",
     "allowBackfill": "Allow backfill",
     "allowBackfillDescription": "Allow checking off habits for past days in the week view",
     "skippedBreaksStreak": "Skipped breaks streak",
-    "skippedBreaksStreakDescription": "Skipping a habit counts as breaking the streak"
+    "skippedBreaksStreakDescription": "Skipping a habit counts as breaking the streak",
+    "desktopDaysToShow": "Days to display",
+    "desktopDaysToShowDescription": "Number of days shown in the desktop week view",
+    "weekStartsOn": "Week starts on",
+    "weekStartsOnDescription": "First day of the week for visual separators"
   },
   "stats": {
     "currentStreak": "Current streak",

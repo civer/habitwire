@@ -55,6 +55,8 @@ export interface UserResponse {
       allowBackfill?: boolean
       groupByCategory?: boolean
       skippedBreaksStreak?: boolean
+      desktopDaysToShow?: number
+      weekStartsOn?: 'monday' | 'sunday'
     } | null
   }
 }

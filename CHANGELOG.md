@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2024-12-15
+
+### Added
+- Configurable desktop week view (7, 14, 21, or 28 days)
+- Week start day setting (Monday or Sunday)
+- Visual week separators in habit day view
+- New settings page layout with sidebar navigation
+- Settings categories: General, Display, Categories, API Keys, Security
+
+### Changed
+- Default desktop view now shows 14 days instead of 7
+- Settings page redesigned with left-aligned navigation
+- Green target SVG favicon
+
+### Fixed
+- CUSTOM frequency type no longer requires active_days field
+- Habit name display in flexible layout
+
 ## [0.9.1] - 2024-12-13
 
 ### Fixed
@@ -65,5 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database schema may change before 1.0 release (migrations will be provided)
 - Multi-user support planned for future releases
 
+[0.9.2]: https://github.com/civer/habitwire/releases/tag/v0.9.2
 [0.9.1]: https://github.com/civer/habitwire/releases/tag/v0.9.1
 [0.9.0]: https://github.com/civer/habitwire/releases/tag/v0.9.0

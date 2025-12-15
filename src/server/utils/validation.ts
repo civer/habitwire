@@ -43,11 +43,16 @@ export const passwordChangeSchema = z.object({
   new_password: z.string().min(8, 'New password must be at least 8 characters')
 })
 
+// Week start day enum
+export const weekStartsOnEnum = z.enum(['monday', 'sunday'])
+
 // Settings whitelist - only these fields are allowed
 export const settingsSchema = z.object({
   allowBackfill: z.boolean().optional(),
   groupByCategory: z.boolean().optional(),
-  skippedBreaksStreak: z.boolean().optional()
+  skippedBreaksStreak: z.boolean().optional(),
+  desktopDaysToShow: z.number().int().min(7).max(31).optional(),
+  weekStartsOn: weekStartsOnEnum.optional()
 }).strict() // Reject any additional fields
 
 // ============================================================
@@ -77,14 +82,15 @@ const baseHabitSchema = z.object({
 
 export const createHabitSchema = baseHabitSchema.refine(
   (data) => {
-    // WEEKLY and CUSTOM require active_days to be set
-    if (data.frequency_type === 'WEEKLY' || data.frequency_type === 'CUSTOM') {
+    // WEEKLY requires active_days to specify which days
+    // CUSTOM uses frequency_value for "X times per week" without specific days
+    if (data.frequency_type === 'WEEKLY') {
       return data.active_days && data.active_days.length > 0
     }
     return true
   },
   {
-    message: 'active_days is required for WEEKLY and CUSTOM frequency types',
+    message: 'active_days is required for WEEKLY frequency type',
     path: ['active_days']
   }
 )
@@ -110,14 +116,15 @@ const baseUpdateHabitSchema = z.object({
 
 export const updateHabitSchema = baseUpdateHabitSchema.refine(
   (data) => {
-    // If changing to WEEKLY/CUSTOM, active_days must be provided
-    if (data.frequency_type === 'WEEKLY' || data.frequency_type === 'CUSTOM') {
+    // If changing to WEEKLY, active_days must be provided
+    // CUSTOM uses frequency_value for "X times per week" without specific days
+    if (data.frequency_type === 'WEEKLY') {
       return data.active_days && data.active_days.length > 0
     }
     return true
   },
   {
-    message: 'active_days is required when changing to WEEKLY or CUSTOM frequency type',
+    message: 'active_days is required when changing to WEEKLY frequency type',
     path: ['active_days']
   }
 )

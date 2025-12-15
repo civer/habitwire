@@ -1,4 +1,9 @@
 <script setup lang="ts">
+const props = defineProps<{
+  daysToShow?: number
+  weekStartsOn?: 'monday' | 'sunday'
+}>()
+
 function formatDateString(date: Date): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -8,17 +13,26 @@ function formatDateString(date: Date): string {
 
 const today = formatDateString(new Date())
 
-const last7Days = computed(() => {
-  const days: { date: string, dayName: string, isToday: boolean }[] = []
+const daysCount = computed(() => props.daysToShow ?? 14)
+const weekStart = computed(() => props.weekStartsOn ?? 'monday')
+
+function isWeekStart(date: Date): boolean {
+  const dayOfWeek = date.getDay()
+  return weekStart.value === 'monday' ? dayOfWeek === 1 : dayOfWeek === 0
+}
+
+const displayDays = computed(() => {
+  const days: { date: string, dayName: string, isToday: boolean, isWeekStart: boolean }[] = []
   const now = new Date()
-  for (let i = 6; i >= 0; i--) {
+  for (let i = daysCount.value - 1; i >= 0; i--) {
     const d = new Date(now)
     d.setDate(d.getDate() - i)
     const dateStr = formatDateString(d)
     days.push({
       date: dateStr,
       dayName: d.toLocaleDateString(undefined, { weekday: 'short' }),
-      isToday: dateStr === today
+      isToday: dateStr === today,
+      isWeekStart: isWeekStart(d) && i !== daysCount.value - 1
     })
   }
   return days
@@ -30,18 +44,24 @@ const last7Days = computed(() => {
   <div class="contents">
     <!-- Matches HabitCard: Layout B (week view) + Actions -->
     <div class="hidden md:flex items-center justify-end gap-1.5 flex-1">
-      <div
-        v-for="day in last7Days"
+      <template
+        v-for="day in displayDays"
         :key="day.date"
-        class="relative w-6 h-6 flex items-center justify-center"
       >
-        <span
-          class="text-[10px] text-gray-400 dark:text-gray-500 uppercase"
-          :class="{ 'font-semibold text-primary': day.isToday }"
-        >
-          {{ day.dayName.slice(0, 2) }}
-        </span>
-      </div>
+        <!-- Week separator (spacing only) -->
+        <div
+          v-if="day.isWeekStart"
+          class="w-2"
+        />
+        <div class="relative w-6 h-6 flex items-center justify-center">
+          <span
+            class="text-[10px] text-gray-400 dark:text-gray-500 uppercase"
+            :class="{ 'font-semibold text-primary': day.isToday }"
+          >
+            {{ day.dayName.slice(0, 2) }}
+          </span>
+        </div>
+      </template>
     </div>
     <!-- Spacer for actions (skip + menu) - match HabitCard actions -->
     <div class="hidden md:flex items-center gap-1 ml-2">

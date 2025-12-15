@@ -35,6 +35,8 @@ interface Habit {
 const props = defineProps<{
   habit: Habit
   allowBackfill?: boolean
+  daysToShow?: number
+  weekStartsOn?: 'monday' | 'sunday'
 }>()
 
 const emit = defineEmits<{
@@ -77,18 +79,28 @@ function isActiveDay(date: string): boolean {
   return activeDays.value.includes(dayOfWeek)
 }
 
-// Generate last 7 days
-const last7Days = computed(() => {
-  const days: { date: string, dayName: string, isToday: boolean }[] = []
+// Generate days to display (default 14 on desktop)
+const daysCount = computed(() => props.daysToShow ?? 14)
+const weekStart = computed(() => props.weekStartsOn ?? 'monday')
+
+// Check if a day is the start of a new week (for visual separator)
+function isWeekStart(date: Date): boolean {
+  const dayOfWeek = date.getDay() // 0 = Sunday, 1 = Monday
+  return weekStart.value === 'monday' ? dayOfWeek === 1 : dayOfWeek === 0
+}
+
+const displayDays = computed(() => {
+  const days: { date: string, dayName: string, isToday: boolean, isWeekStart: boolean }[] = []
   const now = new Date()
-  for (let i = 6; i >= 0; i--) {
+  for (let i = daysCount.value - 1; i >= 0; i--) {
     const d = new Date(now)
     d.setDate(d.getDate() - i)
     const dateStr = formatDateString(d)
     days.push({
       date: dateStr,
       dayName: d.toLocaleDateString(undefined, { weekday: 'short' }),
-      isToday: dateStr === today
+      isToday: dateStr === today,
+      isWeekStart: isWeekStart(d) && i !== daysCount.value - 1 // Don't show separator on first day
     })
   }
   return days
@@ -145,11 +157,13 @@ function getDayProgress(date: string): number {
   return Math.min(100, (checkin.value / targetValue.value) * 100)
 }
 
-// For CUSTOM: count completed days this week
+// For CUSTOM: count completed days this week (last 7 days)
 const weeklyCompletedCount = computed(() => {
   if (!isCustom.value) return 0
   let count = 0
-  for (const day of last7Days.value) {
+  // Only count last 7 days for weekly progress
+  const last7 = displayDays.value.slice(-7)
+  for (const day of last7) {
     const status = getDayStatus(day.date)
     if (status === 'completed') count++
   }
@@ -330,7 +344,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
 
     <div class="flex items-center gap-3">
       <!-- Layout A: Main habit info -->
-      <div class="flex items-center gap-3 flex-1 min-w-0 md:flex-none md:w-1/2">
+      <div class="flex items-center gap-3 flex-1 min-w-0 md:flex-initial md:min-w-[200px]">
         <!-- Check button with progress ring (mobile only - desktop uses week view) -->
         <div class="md:hidden flex-shrink-0 relative">
           <!-- Progress ring for TARGET habits -->
@@ -485,20 +499,28 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
 
       <!-- Layout B: Week view (desktop only) -->
       <div class="hidden md:flex items-center justify-end gap-1.5 flex-1">
-        <HabitDayButton
-          v-for="day in last7Days"
+        <template
+          v-for="day in displayDays"
           :key="day.date"
-          :date="day.date"
-          :day-name="day.dayName"
-          :is-today="day.isToday"
-          :status="getDayStatus(day.date)"
-          :progress="getDayProgress(day.date)"
-          :tooltip="getDayTooltip(day)"
-          :is-target-habit="isTargetHabit"
-          :allow-backfill="allowBackfill"
-          :loading="loadingDay === day.date"
-          @click="toggleDayCheck(day)"
-        />
+        >
+          <!-- Week separator (spacing only) -->
+          <div
+            v-if="day.isWeekStart"
+            class="w-2"
+          />
+          <HabitDayButton
+            :date="day.date"
+            :day-name="day.dayName"
+            :is-today="day.isToday"
+            :status="getDayStatus(day.date)"
+            :progress="getDayProgress(day.date)"
+            :tooltip="getDayTooltip(day)"
+            :is-target-habit="isTargetHabit"
+            :allow-backfill="allowBackfill"
+            :loading="loadingDay === day.date"
+            @click="toggleDayCheck(day)"
+          />
+        </template>
       </div>
 
       <!-- Actions (desktop - after week view) -->

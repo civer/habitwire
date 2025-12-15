@@ -9,6 +9,8 @@ const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
 
 const allowBackfill = computed(() => userData.value?.user?.settings?.allowBackfill ?? false)
 const groupByCategory = computed(() => userData.value?.user?.settings?.groupByCategory ?? true)
+const desktopDaysToShow = computed(() => userData.value?.user?.settings?.desktopDaysToShow ?? 14)
+const weekStartsOn = computed(() => userData.value?.user?.settings?.weekStartsOn ?? 'monday')
 
 const selectedCategory = ref<string | null>(null)
 const collapsedCategories = ref<Set<string | null>>(new Set())
@@ -160,7 +162,7 @@ const showCategoryHeaders = computed(() => {
         <div class="flex items-center gap-3 mb-2 px-4 sm:px-6">
           <!-- Category info - clickable to collapse -->
           <button
-            class="-ml-5 flex items-center gap-3 flex-1 min-w-0 md:flex-none md:w-1/2 hover:opacity-80 transition-opacity cursor-pointer text-left"
+            class="-ml-5 flex items-center gap-3 flex-1 min-w-0 md:flex-initial md:min-w-[200px] hover:opacity-80 transition-opacity cursor-pointer text-left"
             @click="toggleCategory(group.category?.id || null)"
           >
             <UIcon
@@ -191,6 +193,8 @@ const showCategoryHeaders = computed(() => {
           <HabitWeekHeader
             v-if="!isCategoryCollapsed(group.category?.id || null)"
             class="flex-1"
+            :days-to-show="desktopDaysToShow"
+            :week-starts-on="weekStartsOn"
           />
         </div>
         <div
@@ -202,6 +206,8 @@ const showCategoryHeaders = computed(() => {
             :key="habit.id"
             :habit="habit"
             :allow-backfill="allowBackfill"
+            :days-to-show="desktopDaysToShow"
+            :week-starts-on="weekStartsOn"
             @checked="refreshHabits"
           />
         </div>
@@ -215,14 +221,20 @@ const showCategoryHeaders = computed(() => {
     >
       <!-- Week header -->
       <div class="flex items-center gap-3 px-4 sm:px-6">
-        <div class="flex-1 md:w-1/2 md:flex-none" />
-        <HabitWeekHeader class="flex-1" />
+        <div class="flex-1 md:flex-initial md:min-w-[200px]" />
+        <HabitWeekHeader
+          class="flex-1"
+          :days-to-show="desktopDaysToShow"
+          :week-starts-on="weekStartsOn"
+        />
       </div>
       <HabitCard
         v-for="habit in filteredHabits"
         :key="habit.id"
         :habit="habit"
         :allow-backfill="allowBackfill"
+        :days-to-show="desktopDaysToShow"
+        :week-starts-on="weekStartsOn"
         @checked="refreshHabits"
       />
     </div>

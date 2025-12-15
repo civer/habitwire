@@ -98,12 +98,18 @@
   },
   "settings": {
     "general": "Allgemein",
+    "display": "Anzeige",
+    "security": "Sicherheit",
     "groupByCategory": "Nach Kategorie gruppieren",
     "groupByCategoryDescription": "Gewohnheiten nach Kategorie auf dem Dashboard gruppieren",
     "allowBackfill": "Nachtragen erlauben",
     "allowBackfillDescription": "Gewohnheiten für vergangene Tage in der Wochenansicht abhaken",
     "skippedBreaksStreak": "Überspringen unterbricht Serie",
-    "skippedBreaksStreakDescription": "Das Überspringen einer Gewohnheit zählt als Unterbrechung der Serie"
+    "skippedBreaksStreakDescription": "Das Überspringen einer Gewohnheit zählt als Unterbrechung der Serie",
+    "desktopDaysToShow": "Angezeigte Tage",
+    "desktopDaysToShowDescription": "Anzahl der Tage in der Desktop-Wochenansicht",
+    "weekStartsOn": "Woche beginnt am",
+    "weekStartsOnDescription": "Erster Tag der Woche für visuelle Trennung"
   },
   "stats": {
     "currentStreak": "Aktuelle Serie",
