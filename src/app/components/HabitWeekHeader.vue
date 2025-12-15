@@ -63,9 +63,8 @@ const displayDays = computed(() => {
         </div>
       </template>
     </div>
-    <!-- Spacer for actions (skip + menu) - match HabitCard actions -->
+    <!-- Spacer for actions (menu only) - match HabitCard actions -->
     <div class="hidden md:flex items-center gap-1 ml-2">
-      <div class="w-6 h-6" />
       <div class="w-6 h-6" />
     </div>
   </div>
