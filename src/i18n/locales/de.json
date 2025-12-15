@@ -1,6 +1,7 @@
 {
   "app": {
-    "name": "HabitWire"
+    "name": "HabitWire",
+    "description": "Selbst-gehosteter Habit Tracker"
   },
   "auth": {
     "login": "Anmelden",
@@ -23,7 +24,9 @@
   "validation": {
     "required": "{field} ist erforderlich",
     "usernameRequired": "Benutzername ist erforderlich",
-    "passwordRequired": "Passwort ist erforderlich"
+    "passwordRequired": "Passwort ist erforderlich",
+    "minValue": "Wert muss mindestens {min} sein",
+    "selectAtLeastOneDay": "Bitte wähle mindestens einen Tag aus"
   },
   "habits": {
     "title": "Gewohnheiten",
@@ -34,6 +37,13 @@
     "delete": "Gewohnheit löschen",
     "archive": "Archivieren",
     "archived": "Archiviert",
+    "restore": "Wiederherstellen",
+    "habitRestored": "Gewohnheit wiederhergestellt",
+    "viewArchived": "Archiv anzeigen",
+    "noArchivedHabits": "Keine archivierten Gewohnheiten",
+    "habitCreated": "Gewohnheit erstellt",
+    "habitUpdated": "Gewohnheit aktualisiert",
+    "habitArchived": "Gewohnheit archiviert",
     "check": "Erledigt",
     "uncheck": "Rückgängig",
     "skip": "Überspringen",
@@ -78,7 +88,10 @@
     "name": "Name",
     "color": "Farbe",
     "noCategory": "Keine Kategorie",
-    "allCategories": "Alle Kategorien"
+    "allCategories": "Alle Kategorien",
+    "categoryCreated": "Kategorie erstellt",
+    "categoryUpdated": "Kategorie aktualisiert",
+    "categoryDeleted": "Kategorie gelöscht"
   },
   "common": {
     "save": "Speichern",
@@ -88,7 +101,9 @@
     "add": "Hinzufügen",
     "today": "Heute",
     "settings": "Einstellungen",
-    "language": "Sprache"
+    "language": "Sprache",
+    "error": "Fehler",
+    "never": "Nie"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -119,7 +134,14 @@
     "days": "Tage",
     "day": "Tag",
     "activity": "Aktivität",
-    "recentCheckins": "Letzte Check-ins"
+    "recentCheckins": "Letzte Check-ins",
+    "less": "Weniger",
+    "more": "Mehr",
+    "noActivity": "Keine Aktivität"
+  },
+  "errors": {
+    "restoreHabit": "Gewohnheit konnte nicht wiederhergestellt werden",
+    "habitNotFound": "Gewohnheit nicht gefunden"
   },
   "apiKeys": {
     "title": "API-Schlüssel",
@@ -131,6 +153,10 @@
     "done": "Fertig",
     "error": "Fehler",
     "createError": "Schlüssel konnte nicht erstellt werden",
-    "copiedToClipboard": "In Zwischenablage kopiert"
+    "copiedToClipboard": "In Zwischenablage kopiert",
+    "empty": "Noch keine API-Schlüssel",
+    "lastUsed": "Zuletzt verwendet",
+    "deleteSuccess": "API-Schlüssel gelöscht",
+    "deleteError": "API-Schlüssel konnte nicht gelöscht werden"
   }
 }

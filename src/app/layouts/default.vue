@@ -3,6 +3,7 @@ import { getErrorMessage } from '~/types/error'
 import type { UserResponse } from '~/types/api'
 
 const { t } = useI18n()
+const runtimeConfig = useRuntimeConfig()
 const router = useRouter()
 const toast = useToast()
 
@@ -14,8 +15,8 @@ async function logout() {
     router.push('/login')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Logout failed'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   }
@@ -53,6 +54,7 @@ const userMenuItems = computed(() => [
             class="w-6 h-6 text-primary"
           />
           <span class="font-bold text-lg">{{ $t('app.name') }}</span>
+          <span class="text-xs text-gray-400 dark:text-gray-500">v{{ runtimeConfig.public.version }}</span>
         </NuxtLink>
       </template>
 

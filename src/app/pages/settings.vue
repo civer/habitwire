@@ -2,7 +2,7 @@
 import { getErrorMessage } from '~/types/error'
 import type { UserResponse } from '~/types/api'
 
-const { t: _t } = useI18n()
+const { t } = useI18n()
 const toast = useToast()
 
 const categoryKey = ref(0)
@@ -45,8 +45,8 @@ async function updateSetting(key: string, value: boolean | number | string, prev
     await refreshUser()
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to update settings'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
     // Revert on error
@@ -125,7 +125,7 @@ function refreshApiKeys() {
                 name="i-lucide-key"
                 class="w-4 h-4 mr-2 inline-block"
               />
-              API Keys
+              {{ $t('apiKeys.title') }}
             </button>
           </li>
           <li>
@@ -271,7 +271,7 @@ function refreshApiKeys() {
           <template #header>
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-semibold">
-                API Keys
+                {{ $t('apiKeys.title') }}
               </h2>
               <ApiKeyModal @created="refreshApiKeys" />
             </div>

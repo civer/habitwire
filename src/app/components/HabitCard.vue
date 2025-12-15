@@ -207,8 +207,8 @@ async function check(value?: number, date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to check habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -228,8 +228,8 @@ async function skip(date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to skip habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -252,8 +252,8 @@ async function uncheck(date?: string) {
     emit('checked')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to uncheck habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {
@@ -272,13 +272,13 @@ async function archive() {
     emit('checked')
     toast.add({
       title: t('habits.archive'),
-      description: 'Habit archived',
+      description: t('habits.habitArchived'),
       color: 'success'
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to archive habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error),
       color: 'error'
     })
   } finally {

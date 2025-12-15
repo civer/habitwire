@@ -16,7 +16,7 @@ const { data: checkins, refresh: _refreshCheckins } = await useFetch<CheckinResp
 if (habitError.value || !habit.value) {
   throw createError({
     statusCode: 404,
-    message: 'Habit not found'
+    message: _t('errors.habitNotFound')
   })
 }
 

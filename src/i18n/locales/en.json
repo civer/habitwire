@@ -1,6 +1,7 @@
 {
   "app": {
-    "name": "HabitWire"
+    "name": "HabitWire",
+    "description": "Self-hosted habit tracker"
   },
   "auth": {
     "login": "Login",
@@ -23,7 +24,9 @@
   "validation": {
     "required": "{field} is required",
     "usernameRequired": "Username is required",
-    "passwordRequired": "Password is required"
+    "passwordRequired": "Password is required",
+    "minValue": "Value must be at least {min}",
+    "selectAtLeastOneDay": "Please select at least one day"
   },
   "habits": {
     "title": "Habits",
@@ -34,6 +37,13 @@
     "delete": "Delete habit",
     "archive": "Archive",
     "archived": "Archived",
+    "restore": "Restore",
+    "habitRestored": "Habit restored",
+    "viewArchived": "View archived",
+    "noArchivedHabits": "No archived habits",
+    "habitCreated": "Habit created successfully",
+    "habitUpdated": "Habit updated successfully",
+    "habitArchived": "Habit archived",
     "check": "Check",
     "uncheck": "Uncheck",
     "skip": "Skip",
@@ -78,7 +88,10 @@
     "name": "Name",
     "color": "Color",
     "noCategory": "No category",
-    "allCategories": "All categories"
+    "allCategories": "All categories",
+    "categoryCreated": "Category created",
+    "categoryUpdated": "Category updated",
+    "categoryDeleted": "Category deleted"
   },
   "common": {
     "save": "Save",
@@ -88,7 +101,9 @@
     "add": "Add",
     "today": "Today",
     "settings": "Settings",
-    "language": "Language"
+    "language": "Language",
+    "error": "Error",
+    "never": "Never"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -119,7 +134,14 @@
     "days": "days",
     "day": "day",
     "activity": "Activity",
-    "recentCheckins": "Recent check-ins"
+    "recentCheckins": "Recent check-ins",
+    "less": "Less",
+    "more": "More",
+    "noActivity": "No activity"
+  },
+  "errors": {
+    "restoreHabit": "Failed to restore habit",
+    "habitNotFound": "Habit not found"
   },
   "apiKeys": {
     "title": "API Keys",
@@ -131,6 +153,10 @@
     "done": "Done",
     "error": "Error",
     "createError": "Failed to create key",
-    "copiedToClipboard": "Copied to clipboard"
+    "copiedToClipboard": "Copied to clipboard",
+    "empty": "No API keys yet",
+    "lastUsed": "Last used",
+    "deleteSuccess": "API key deleted",
+    "deleteError": "Failed to delete API key"
   }
 }
