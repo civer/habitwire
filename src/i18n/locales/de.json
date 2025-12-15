@@ -34,6 +34,7 @@
     "delete": "Gewohnheit löschen",
     "archive": "Archivieren",
     "archived": "Archiviert",
+    "habitArchived": "Gewohnheit archiviert",
     "check": "Erledigt",
     "uncheck": "Rückgängig",
     "skip": "Überspringen",
@@ -88,7 +89,8 @@
     "add": "Hinzufügen",
     "today": "Heute",
     "settings": "Einstellungen",
-    "language": "Sprache"
+    "language": "Sprache",
+    "error": "Fehler"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -120,6 +122,20 @@
     "day": "Tag",
     "activity": "Aktivität",
     "recentCheckins": "Letzte Check-ins"
+  },
+  "errors": {
+    "logoutFailed": "Abmeldung fehlgeschlagen",
+    "updateSettings": "Einstellungen konnten nicht aktualisiert werden",
+    "createHabit": "Gewohnheit konnte nicht erstellt werden",
+    "updateHabit": "Gewohnheit konnte nicht aktualisiert werden",
+    "checkHabit": "Gewohnheit konnte nicht abgehakt werden",
+    "uncheckHabit": "Abhaken konnte nicht rückgängig gemacht werden",
+    "skipHabit": "Gewohnheit konnte nicht übersprungen werden",
+    "resetHabit": "Gewohnheit konnte nicht zurückgesetzt werden",
+    "archiveHabit": "Gewohnheit konnte nicht archiviert werden",
+    "createCategory": "Kategorie konnte nicht erstellt werden",
+    "updateCategory": "Kategorie konnte nicht aktualisiert werden",
+    "deleteCategory": "Kategorie konnte nicht gelöscht werden"
   },
   "apiKeys": {
     "title": "API-Schlüssel",

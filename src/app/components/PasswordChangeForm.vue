@@ -44,7 +44,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     state.confirm_password = ''
   } catch (error) {
     toast.add({
-      title: 'Error',
+      title: t('common.error'),
       description: getErrorMessage(error, t('auth.passwordChangeFailed')),
       color: 'error'
     })

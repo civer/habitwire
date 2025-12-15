@@ -20,7 +20,7 @@ const emit = defineEmits<{
   'checked': []
 }>()
 
-const { t: _t } = useI18n()
+const { t } = useI18n()
 const toast = useToast()
 
 const loading = ref(false)
@@ -66,8 +66,8 @@ async function skip() {
     isOpen.value = false
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to skip habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.skipHabit')),
       color: 'error'
     })
   } finally {
@@ -86,8 +86,8 @@ async function uncheck() {
     isOpen.value = false
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to reset habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.resetHabit')),
       color: 'error'
     })
   } finally {
@@ -107,8 +107,8 @@ async function check(value: number) {
     isOpen.value = false
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to check habit'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.checkHabit')),
       color: 'error'
     })
   } finally {

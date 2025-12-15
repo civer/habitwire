@@ -14,8 +14,8 @@ async function logout() {
     router.push('/login')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Logout failed'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.logoutFailed')),
       color: 'error'
     })
   }

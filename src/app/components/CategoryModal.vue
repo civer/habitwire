@@ -99,8 +99,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     emit('created')
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to create category'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.createCategory')),
       color: 'error'
     })
   } finally {

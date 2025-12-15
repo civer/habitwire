@@ -91,8 +91,8 @@ async function saveEdit() {
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to update category'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.updateCategory')),
       color: 'error'
     })
   } finally {
@@ -111,8 +111,8 @@ async function deleteCategory(id: string) {
     })
   } catch (error) {
     toast.add({
-      title: 'Error',
-      description: getErrorMessage(error, 'Failed to delete category'),
+      title: t('common.error'),
+      description: getErrorMessage(error, t('errors.deleteCategory')),
       color: 'error'
     })
   }

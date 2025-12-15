@@ -34,6 +34,7 @@
     "delete": "Delete habit",
     "archive": "Archive",
     "archived": "Archived",
+    "habitArchived": "Habit archived",
     "check": "Check",
     "uncheck": "Uncheck",
     "skip": "Skip",
@@ -88,7 +89,8 @@
     "add": "Add",
     "today": "Today",
     "settings": "Settings",
-    "language": "Language"
+    "language": "Language",
+    "error": "Error"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -120,6 +122,20 @@
     "day": "day",
     "activity": "Activity",
     "recentCheckins": "Recent check-ins"
+  },
+  "errors": {
+    "logoutFailed": "Logout failed",
+    "updateSettings": "Failed to update settings",
+    "createHabit": "Failed to create habit",
+    "updateHabit": "Failed to update habit",
+    "checkHabit": "Failed to check habit",
+    "uncheckHabit": "Failed to uncheck habit",
+    "skipHabit": "Failed to skip habit",
+    "resetHabit": "Failed to reset habit",
+    "archiveHabit": "Failed to archive habit",
+    "createCategory": "Failed to create category",
+    "updateCategory": "Failed to update category",
+    "deleteCategory": "Failed to delete category"
   },
   "apiKeys": {
     "title": "API Keys",
