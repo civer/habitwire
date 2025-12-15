@@ -10,7 +10,8 @@ export const users = pgTable('users', {
     allowBackfill?: boolean
     groupByCategory?: boolean
     skippedBreaksStreak?: boolean
-    weekStartsOn?: 0 | 1 // 0 = Sunday, 1 = Monday (default)
+    desktopDaysToShow?: number
+    weekStartsOn?: 'monday' | 'sunday'
   }>().default({}),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
