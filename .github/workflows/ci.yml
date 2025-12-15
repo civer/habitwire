@@ -7,12 +7,12 @@ on:
   pull_request:
 
 env:
-  REGISTRY: docker.io
   IMAGE_NAME: civer/habitwire
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & Type Check
+  # Run tests on all PRs and pushes to main
+  test:
+    name: Lint, Typecheck & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -42,11 +42,12 @@ jobs:
         run: npm run test:run
         working-directory: src
 
-  # Build for each platform natively (faster than QEMU emulation)
+  # Build Docker images for each platform natively (faster than QEMU)
   # Only runs on version tags (v*)
   docker-build:
     name: Docker Build (${{ matrix.platform }})
-    needs: lint-and-typecheck
+    runs-on: ${{ matrix.runner }}
+    needs: test
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
@@ -55,7 +56,6 @@ jobs:
             runner: ubuntu-latest
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout
@@ -99,9 +99,9 @@ jobs:
           retention-days: 1
 
   # Merge platform-specific images into multi-arch manifest
-  # Tags as version (e.g. 0.9.1) AND latest
-  docker-merge:
-    name: Docker Merge Manifests
+  # Tags as version (e.g. 0.9.3) AND latest
+  docker-push:
+    name: Push Docker Image
     runs-on: ubuntu-latest
     needs: docker-build
     if: startsWith(github.ref, 'refs/tags/v')
@@ -141,30 +141,3 @@ jobs:
           docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
           echo "=== Latest tag ==="
           docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:latest
-
-  # Separate job for PR validation (build only, no push) - uses QEMU for simplicity
-  docker-build-pr:
-    name: Docker Build (PR)
-    runs-on: ubuntu-latest
-    needs: lint-and-typecheck
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build (no push)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: false
-          tags: ${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
