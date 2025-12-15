@@ -48,7 +48,9 @@ Self-hosted, API-first habit tracker with a modern web UI.
 
 ## Screenshots
 
-> *Screenshots coming soon*
+![HabitWire Dashboard](.github/images/screenshot1.png)
+
+![HabitWire Habit Details](.github/images/screenshot2.png)
 
 ## Installation
 
