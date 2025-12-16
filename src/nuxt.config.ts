@@ -20,8 +20,7 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' },
-        { rel: 'manifest', href: '/manifest.webmanifest' }
+        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' }
       ],
       meta: [
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
