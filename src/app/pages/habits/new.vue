@@ -2,13 +2,15 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { getErrorMessage } from '~/types/error'
-import type { CategoryResponse } from '~/types/api'
+import type { CategoryResponse, UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
 
 const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categories')
+const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
+const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?? false)
 
 const baseSchema = z.object({
   title: z.string().min(1, t('validation.required', { field: t('habits.habitTitle') })),
@@ -50,6 +52,7 @@ type Schema = z.output<typeof schema>
 const state = reactive({
   title: '',
   description: '',
+  habit_selection: 'SIMPLE' as 'SIMPLE' | 'WITH_NOTE' | 'TARGET',
   habit_type: 'SIMPLE' as 'SIMPLE' | 'TARGET',
   frequency_type: 'DAILY' as 'DAILY' | 'WEEKLY' | 'CUSTOM',
   frequency_value: 1,
@@ -59,8 +62,12 @@ const state = reactive({
   unit: '',
   category_id: undefined as string | undefined,
   icon: 'i-lucide-target',
-  color: '',
-  prompt_for_notes: false
+  color: ''
+})
+
+// Keep habit_type in sync with habit_selection for schema validation
+watch(() => state.habit_selection, (selection) => {
+  state.habit_type = selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
 })
 
 const weekdays = computed(() => [
@@ -120,10 +127,21 @@ watch(() => state.frequency_type, () => {
   formRef.value?.clear()
 })
 
-const habitTypeItems = computed(() => [
-  { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
-  { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
-])
+const isTargetHabit = computed(() => state.habit_selection === 'TARGET')
+
+const habitTypeItems = computed(() => {
+  if (enableNotes.value) {
+    return [
+      { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
+      { label: t('habits.habitTypeWithNote'), value: 'WITH_NOTE', icon: 'i-lucide-message-square' },
+      { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
+    ]
+  }
+  return [
+    { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
+    { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
+  ]
+})
 
 const frequencyItems = computed(() => [
   { label: t('habits.frequencyDaily'), value: 'DAILY', icon: 'i-lucide-calendar-days' },
@@ -138,18 +156,22 @@ const categoryOptions = computed(() =>
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
+    // Map selection to actual habit_type and prompt_for_notes
+    const habitType = state.habit_selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
+    const promptForNotes = state.habit_selection === 'WITH_NOTE'
+
     const body = {
       ...event.data,
-      habit_type: state.habit_type,
+      habit_type: habitType,
       category_id: event.data.category_id || null,
-      target_value: state.habit_type === 'TARGET' ? state.target_value : null,
-      default_increment: state.habit_type === 'TARGET' ? state.default_increment : null,
-      unit: state.habit_type === 'TARGET' ? (event.data.unit || null) : null,
+      target_value: isTargetHabit.value ? state.target_value : null,
+      default_increment: isTargetHabit.value ? state.default_increment : null,
+      unit: isTargetHabit.value ? (event.data.unit || null) : null,
       active_days: state.frequency_type === 'WEEKLY' ? state.active_days : null,
       frequency_value: state.frequency_type === 'CUSTOM' ? state.frequency_value : 1,
       icon: event.data.icon || null,
       color: event.data.color || null,
-      prompt_for_notes: state.habit_type === 'SIMPLE' ? state.prompt_for_notes : false
+      prompt_for_notes: promptForNotes
     }
     await $fetch('/api/v1/habits', {
       method: 'POST',
@@ -228,7 +250,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           name="habit_type"
         >
           <URadioGroup
-            v-model="state.habit_type"
+            v-model="state.habit_selection"
             :items="habitTypeItems"
             orientation="horizontal"
             variant="card"
@@ -236,7 +258,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           />
           <!-- Target value fields - inline below habit type -->
           <div
-            v-if="state.habit_type === 'TARGET'"
+            v-if="isTargetHabit"
             class="flex gap-2 mt-3 items-end"
           >
             <div class="flex-1">
@@ -374,24 +396,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               variant="ghost"
               @click="state.category_id = undefined"
             />
-          </div>
-        </UFormField>
-
-        <!-- Prompt for notes toggle (SIMPLE habits only) -->
-        <UFormField
-          v-if="state.habit_type === 'SIMPLE'"
-          name="prompt_for_notes"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="font-medium text-sm">
-                {{ $t('habits.promptForNotes') }}
-              </p>
-              <p class="text-sm text-gray-500">
-                {{ $t('habits.promptForNotesDescription') }}
-              </p>
-            </div>
-            <USwitch v-model="state.prompt_for_notes" />
           </div>
         </UFormField>
 

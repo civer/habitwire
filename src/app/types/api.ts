@@ -59,6 +59,7 @@ export interface UserResponse {
       skippedBreaksStreak?: boolean
       desktopDaysToShow?: number
       weekStartsOn?: 'monday' | 'sunday'
+      enableNotes?: boolean
     } | null
   }
 }

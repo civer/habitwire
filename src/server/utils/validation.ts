@@ -52,7 +52,8 @@ export const settingsSchema = z.object({
   groupByCategory: z.boolean().optional(),
   skippedBreaksStreak: z.boolean().optional(),
   desktopDaysToShow: z.number().int().min(7).max(31).optional(),
-  weekStartsOn: weekStartsOnEnum.optional()
+  weekStartsOn: weekStartsOnEnum.optional(),
+  enableNotes: z.boolean().optional()
 }).strict() // Reject any additional fields
 
 // ============================================================

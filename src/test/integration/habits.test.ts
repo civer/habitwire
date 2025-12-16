@@ -235,4 +235,55 @@ describe('Habits Integration', () => {
       expect(found).toBeUndefined()
     })
   })
+
+  describe('Notes Feature', () => {
+    it('creates SIMPLE habit with prompt_for_notes enabled', async () => {
+      const user = await createTestUser()
+
+      const [habit] = await db.insert(schema.habits).values({
+        userId: user.id,
+        title: 'Journal',
+        frequencyType: 'DAILY',
+        habitType: 'SIMPLE',
+        promptForNotes: true
+      }).returning()
+
+      expect(habit.promptForNotes).toBe(true)
+    })
+
+    it('creates habit with prompt_for_notes disabled by default', async () => {
+      const user = await createTestUser()
+
+      const [habit] = await db.insert(schema.habits).values({
+        userId: user.id,
+        title: 'Exercise',
+        frequencyType: 'DAILY',
+        habitType: 'SIMPLE'
+      }).returning()
+
+      expect(habit.promptForNotes).toBe(false)
+    })
+
+    it('updates prompt_for_notes on existing habit', async () => {
+      const user = await createTestUser()
+
+      const [habit] = await db.insert(schema.habits).values({
+        userId: user.id,
+        title: 'Reading',
+        frequencyType: 'DAILY',
+        habitType: 'SIMPLE',
+        promptForNotes: false
+      }).returning()
+
+      await db.update(schema.habits)
+        .set({ promptForNotes: true })
+        .where(eq(schema.habits.id, habit.id))
+
+      const updated = await db.query.habits.findFirst({
+        where: eq(schema.habits.id, habit.id)
+      })
+
+      expect(updated?.promptForNotes).toBe(true)
+    })
+  })
 })

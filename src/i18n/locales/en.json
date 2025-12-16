@@ -58,7 +58,8 @@
     "activeDays": "Active days",
     "timesPerWeek": "Times per week",
     "habitType": "Type",
-    "habitTypeSimple": "Simple check",
+    "habitTypeSimple": "Simple",
+    "habitTypeWithNote": "With note",
     "habitTypeTarget": "Target value",
     "targetValue": "Target",
     "defaultIncrement": "Default increment",
@@ -133,7 +134,9 @@
     "desktopDaysToShow": "Days to display",
     "desktopDaysToShowDescription": "Number of days shown in the desktop week view",
     "weekStartsOn": "Week starts on",
-    "weekStartsOnDescription": "First day of the week for visual separators"
+    "weekStartsOnDescription": "First day of the week for visual separators",
+    "enableNotes": "Enable notes",
+    "enableNotesDescription": "Allow adding notes when checking habits"
   },
   "stats": {
     "currentStreak": "Current streak",

@@ -15,6 +15,7 @@ const groupByCategory = ref(userData.value?.user?.settings?.groupByCategory ?? t
 const skippedBreaksStreak = ref(userData.value?.user?.settings?.skippedBreaksStreak ?? false)
 const desktopDaysToShow = ref(userData.value?.user?.settings?.desktopDaysToShow ?? 14)
 const weekStartsOn = ref<'monday' | 'sunday'>(userData.value?.user?.settings?.weekStartsOn ?? 'monday')
+const enableNotes = ref(userData.value?.user?.settings?.enableNotes ?? false)
 
 watch(() => userData.value?.user?.settings?.allowBackfill, (newVal) => {
   allowBackfill.value = newVal ?? false
@@ -36,6 +37,10 @@ watch(() => userData.value?.user?.settings?.weekStartsOn, (newVal) => {
   weekStartsOn.value = newVal ?? 'monday'
 })
 
+watch(() => userData.value?.user?.settings?.enableNotes, (newVal) => {
+  enableNotes.value = newVal ?? false
+})
+
 async function updateSetting(key: string, value: boolean | number | string, previousValue?: boolean | number | string) {
   try {
     await $fetch('/api/v1/auth/settings', {
@@ -55,6 +60,7 @@ async function updateSetting(key: string, value: boolean | number | string, prev
     if (key === 'skippedBreaksStreak') skippedBreaksStreak.value = previousValue as boolean ?? !value
     if (key === 'desktopDaysToShow') desktopDaysToShow.value = previousValue as number ?? 14
     if (key === 'weekStartsOn') weekStartsOn.value = previousValue as 'monday' | 'sunday' ?? 'monday'
+    if (key === 'enableNotes') enableNotes.value = previousValue as boolean ?? !value
   }
 }
 
@@ -195,6 +201,20 @@ function refreshApiKeys() {
               <USwitch
                 v-model="skippedBreaksStreak"
                 @update:model-value="(v) => updateSetting('skippedBreaksStreak', v)"
+              />
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">
+                  {{ $t('settings.enableNotes') }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ $t('settings.enableNotesDescription') }}
+                </p>
+              </div>
+              <USwitch
+                v-model="enableNotes"
+                @update:model-value="(v) => updateSetting('enableNotes', v)"
               />
             </div>
           </div>

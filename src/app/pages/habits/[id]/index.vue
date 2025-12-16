@@ -23,6 +23,12 @@ if (habitError.value || !habit.value) {
 const isTargetHabit = computed(() => habit.value?.habit_type === 'TARGET')
 const targetValue = computed(() => habit.value?.target_value ?? null)
 
+// Show newest checkins first
+const sortedCheckins = computed(() => {
+  if (!checkins.value) return []
+  return [...checkins.value].reverse()
+})
+
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString(undefined, {
@@ -201,7 +207,7 @@ function getCheckinStatus(checkin: CheckinResponse): 'completed' | 'partial' | '
         class="divide-y divide-gray-200 dark:divide-gray-800"
       >
         <div
-          v-for="checkin in checkins"
+          v-for="checkin in sortedCheckins"
           :key="checkin.id"
           class="flex items-center justify-between py-3"
         >

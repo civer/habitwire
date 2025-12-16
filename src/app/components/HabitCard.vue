@@ -39,6 +39,7 @@ const props = defineProps<{
   allowBackfill?: boolean
   daysToShow?: number
   weekStartsOn?: 'monday' | 'sunday'
+  enableNotes?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -321,8 +322,8 @@ function toggleCheck() {
     openTargetModal(today)
   } else if (isCompleted.value) {
     uncheck()
-  } else if (props.habit.prompt_for_notes) {
-    // SIMPLE habit with prompt_for_notes opens modal
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
     openNoteModal(today)
   } else {
     check()
@@ -343,8 +344,8 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
   // Non-TARGET habits
   if (status === 'completed') {
     uncheck(day.date)
-  } else if (props.habit.prompt_for_notes) {
-    // SIMPLE habit with prompt_for_notes opens modal
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
     openNoteModal(day.date)
   } else {
     check(undefined, day.date)
@@ -570,6 +571,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
       :default-increment="defaultIncrement"
       :current-value="getModalCurrentValue()"
       :date="modalDate"
+      :enable-notes="enableNotes"
       @checked="emit('checked')"
     />
 

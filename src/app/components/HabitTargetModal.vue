@@ -11,6 +11,7 @@ interface Props {
   defaultIncrement?: number | null
   currentValue: number
   date: string
+  enableNotes?: boolean
 }
 
 const props = defineProps<Props>()
@@ -188,8 +189,8 @@ async function check(value: number) {
             </UButton>
           </div>
 
-          <!-- Notes -->
-          <div>
+          <!-- Notes (only if global notes enabled) -->
+          <div v-if="enableNotes">
             <label class="block text-sm font-medium mb-1.5">
               {{ $t('checkin.addNote') }}
             </label>
@@ -197,6 +198,7 @@ async function check(value: number) {
               v-model="notes"
               :placeholder="$t('checkin.notePlaceholder')"
               :rows="2"
+              class="w-full"
             />
           </div>
 
