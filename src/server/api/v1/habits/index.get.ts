@@ -30,11 +30,12 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.userId
   const { category: categoryId } = validateQuery(event, habitsQuerySchema)
 
-  // Get user settings for streak calculation
+  // Get user settings for streak calculation and display
   const user = await db.query.users.findFirst({
     where: eq(users.id, userId)
   })
   const skippedBreaksStreak = user?.settings?.skippedBreaksStreak ?? false
+  const desktopDaysToShow = user?.settings?.desktopDaysToShow ?? 14
 
   let whereClause = and(eq(habits.userId, userId), eq(habits.archived, false))!
   if (categoryId) {
@@ -49,14 +50,14 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  // Calculate date range for last 7 days
+  // Calculate date range based on user setting (for display)
   const today = new Date()
   const toDate = formatDateLocal(today)
   const fromDateObj = new Date(today)
-  fromDateObj.setDate(fromDateObj.getDate() - 6)
+  fromDateObj.setDate(fromDateObj.getDate() - (desktopDaysToShow - 1))
   const fromDate = formatDateLocal(fromDateObj)
 
-  // Fetch checkins for all habits in the last 7 days (for display)
+  // Fetch checkins for all habits (for display)
   const habitIds = result.map(h => h.id)
   let recentCheckins: typeof checkins.$inferSelect[] = []
 
@@ -120,6 +121,7 @@ export default defineEventHandler(async (event) => {
       habitCheckins,
       {
         frequencyType: h.frequencyType,
+        frequencyValue: h.frequencyValue,
         activeDays: h.activeDays as number[] | null,
         habitType: h.habitType,
         targetValue: h.targetValue,
