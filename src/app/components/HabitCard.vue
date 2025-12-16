@@ -132,6 +132,7 @@ const isCompleted = computed(() => {
   return true
 })
 const isSkipped = computed(() => todayCheckin.value?.skipped)
+const isTodayActiveDay = computed(() => isActiveDay(today))
 const progress = computed(() => {
   if (!isTargetHabit.value || !targetValue.value) return 0
   return Math.min(100, (currentValue.value / targetValue.value) * 100)
@@ -401,7 +402,8 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
     :class="[
       'transition-all overflow-hidden relative',
       isCompleted ? 'border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-950/20' : '',
-      isSkipped ? 'border-gray-300 dark:border-gray-600 opacity-60' : ''
+      isSkipped ? 'border-gray-300 dark:border-gray-600 opacity-60' : '',
+      !isTodayActiveDay ? 'hidden md:block' : ''
     ]"
   >
     <!-- Category color indicator -->
@@ -447,14 +449,16 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
             />
           </svg>
           <button
-            :disabled="loading"
-            class="relative w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer"
+            :disabled="loading || !!isSkipped"
+            class="relative w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
             :class="[
               isCompleted
-                ? 'bg-green-500 border-green-500 text-white'
-                : isTargetHabit && currentValue > 0
-                  ? 'border-transparent bg-white dark:bg-gray-900'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-950/20'
+                ? 'bg-green-500 border-green-500 text-white cursor-pointer'
+                : isSkipped
+                  ? 'border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 cursor-default'
+                  : isTargetHabit && currentValue > 0
+                    ? 'border-transparent bg-white dark:bg-gray-900 cursor-pointer'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-950/20 cursor-pointer'
             ]"
             @click="toggleCheck"
           >
@@ -467,6 +471,11 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
               v-else-if="loading"
               name="i-lucide-loader-2"
               class="w-3.5 h-3.5 animate-spin"
+            />
+            <UIcon
+              v-else-if="isSkipped"
+              name="i-lucide-minus"
+              class="w-3 h-3 text-gray-400"
             />
           </button>
         </div>
