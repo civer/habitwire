@@ -305,9 +305,12 @@ async function archive() {
     })
     emit('checked')
     toast.add({
-      title: t('habits.archive'),
-      description: t('habits.habitArchived'),
-      color: 'success'
+      title: t('habits.habitArchived'),
+      color: 'success',
+      actions: [{
+        label: t('common.undo'),
+        onClick: unarchive
+      }]
     })
   } catch (error) {
     toast.add({
@@ -317,6 +320,27 @@ async function archive() {
     })
   } finally {
     loading.value = false
+  }
+}
+
+async function unarchive() {
+  try {
+    await $fetch(`/api/v1/habits/${props.habit.id}` as '/api/v1/habits/:id', {
+      method: 'PUT',
+      body: { archived: false }
+    })
+    // Use refreshNuxtData since component may be unmounted after archive
+    await refreshNuxtData()
+    toast.add({
+      title: t('habits.habitRestored'),
+      color: 'success'
+    })
+  } catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: getErrorMessage(error),
+      color: 'error'
+    })
   }
 }
 

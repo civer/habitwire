@@ -113,7 +113,8 @@
     "settings": "Einstellungen",
     "language": "Sprache",
     "error": "Fehler",
-    "never": "Nie"
+    "never": "Nie",
+    "undo": "Rückgängig"
   },
   "dashboard": {
     "title": "Dashboard",
