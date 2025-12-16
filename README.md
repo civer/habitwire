@@ -33,12 +33,15 @@ Self-hosted, API-first habit tracker with a modern web UI.
 - **Multi-language** - English and German (i18n ready for more)
 - **Dark Mode** - Built-in dark theme support
 - **Mobile-friendly** - Responsive design for all devices
+- **PWA Support** - Install as app on mobile and desktop
+- **Data Export** - Export habits and check-ins as JSON or CSV
 - **Self-hosted** - Your data stays on your server
 
 ## Roadmap
 
+- [ ] Offline mode (read-only access without internet)
 - [ ] Custom metadata fields for habits
-- [ ] Import/Export functionality
+- [ ] Import functionality (from other habit trackers)
 - [ ] Webhook notifications
 - [ ] Recurring reminders
 - [ ] API key expiration & rotation

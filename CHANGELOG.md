@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.5] - 2025-12-16
+
+### Added
+- **PWA Support** - Install HabitWire as a Progressive Web App on mobile and desktop
+  - Install prompt with "add to home screen" functionality
+  - Service worker with asset caching for faster load times
+  - Web app manifest with proper icons
+- **Data Export** - Export your habits and check-ins from the settings page
+  - JSON format for full data backup
+  - CSV format for spreadsheet analysis
+- **Undo for Archive** - Toast notification with undo action when archiving habits
+- **Accessibility Improvements**
+  - Skip-to-content link for keyboard navigation
+  - ARIA labels on interactive elements (color mode toggle, user menu)
+  - Improved button semantics for habit day buttons
+- **Notes on Check-in** - Add optional notes when checking habits
+  - Global setting to enable/disable notes feature
+  - Per-habit setting to prompt for notes on check-in
+
+### Fixed
+- Streak calculation now correctly handles skipped days based on user settings
+- "Skipped breaks streak" setting properly affects streak counts
+- Habit detail page header layout with tags aligned inline
+
 ## [0.9.4] - 2024-12-15
 
 ### Fixed
@@ -110,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database schema may change before 1.0 release (migrations will be provided)
 - Multi-user support planned for future releases
 
+[0.9.5]: https://github.com/civer/habitwire/releases/tag/v0.9.5
 [0.9.4]: https://github.com/civer/habitwire/releases/tag/v0.9.4
 [0.9.3]: https://github.com/civer/habitwire/releases/tag/v0.9.3
 [0.9.2]: https://github.com/civer/habitwire/releases/tag/v0.9.2
