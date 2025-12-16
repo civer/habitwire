@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
     icon: habit.icon,
     sort_order: habit.sortOrder,
     archived: habit.archived,
+    prompt_for_notes: habit.promptForNotes,
     created_at: habit.createdAt,
     updated_at: habit.updatedAt
   }

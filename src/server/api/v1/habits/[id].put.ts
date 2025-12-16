@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
       icon: body.icon ?? existing.icon,
       sortOrder: body.sort_order ?? existing.sortOrder,
       archived: body.archived ?? existing.archived,
+      promptForNotes: body.prompt_for_notes ?? existing.promptForNotes,
       updatedAt: new Date()
     })
     .where(and(eq(habits.id, id), eq(habits.userId, userId)))
@@ -79,6 +80,7 @@ export default defineEventHandler(async (event) => {
     icon: updated.icon,
     sort_order: updated.sortOrder,
     archived: updated.archived,
+    prompt_for_notes: updated.promptForNotes,
     created_at: updated.createdAt,
     updated_at: updated.updatedAt
   }

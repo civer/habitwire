@@ -78,7 +78,16 @@
       "sat": "Sa",
       "sun": "So"
     },
-    "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie"
+    "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie",
+    "promptForNotes": "Nach Notiz fragen",
+    "promptForNotesDescription": "Öffnet einen Dialog zum Hinzufügen einer Notiz beim Abhaken"
+  },
+  "checkin": {
+    "addNote": "Notiz hinzufügen",
+    "notePlaceholder": "Was beschäftigt dich?",
+    "checkWithNote": "Mit Notiz abhaken",
+    "checkWithoutNote": "Ohne Notiz abhaken",
+    "note": "Notiz"
   },
   "categories": {
     "title": "Kategorien",

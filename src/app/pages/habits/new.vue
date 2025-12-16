@@ -22,7 +22,8 @@ const baseSchema = z.object({
   unit: z.string().optional(),
   category_id: z.string().nullish(),
   icon: z.string().optional(),
-  color: z.string().optional()
+  color: z.string().optional(),
+  prompt_for_notes: z.boolean().optional()
 })
 
 const schema = baseSchema.superRefine((data, ctx) => {
@@ -58,7 +59,8 @@ const state = reactive({
   unit: '',
   category_id: undefined as string | undefined,
   icon: 'i-lucide-target',
-  color: ''
+  color: '',
+  prompt_for_notes: false
 })
 
 const weekdays = computed(() => [
@@ -146,7 +148,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       active_days: state.frequency_type === 'WEEKLY' ? state.active_days : null,
       frequency_value: state.frequency_type === 'CUSTOM' ? state.frequency_value : 1,
       icon: event.data.icon || null,
-      color: event.data.color || null
+      color: event.data.color || null,
+      prompt_for_notes: state.habit_type === 'SIMPLE' ? state.prompt_for_notes : false
     }
     await $fetch('/api/v1/habits', {
       method: 'POST',
@@ -371,6 +374,24 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               variant="ghost"
               @click="state.category_id = undefined"
             />
+          </div>
+        </UFormField>
+
+        <!-- Prompt for notes toggle (SIMPLE habits only) -->
+        <UFormField
+          v-if="state.habit_type === 'SIMPLE'"
+          name="prompt_for_notes"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-medium text-sm">
+                {{ $t('habits.promptForNotes') }}
+              </p>
+              <p class="text-sm text-gray-500">
+                {{ $t('habits.promptForNotesDescription') }}
+              </p>
+            </div>
+            <USwitch v-model="state.prompt_for_notes" />
           </div>
         </UFormField>
 

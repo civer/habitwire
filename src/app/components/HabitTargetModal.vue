@@ -25,6 +25,7 @@ const toast = useToast()
 
 const loading = ref(false)
 const inputValue = ref<number | null>(null)
+const notes = ref('')
 
 const isOpen = computed({
   get: () => props.open,
@@ -100,9 +101,14 @@ async function check(value: number) {
   try {
     await $fetch(`/api/v1/habits/${props.habitId}/check`, {
       method: 'POST',
-      body: { date: props.date, value }
+      body: {
+        date: props.date,
+        value,
+        notes: notes.value.trim() || null
+      }
     })
     inputValue.value = null
+    notes.value = ''
     emit('checked')
     isOpen.value = false
   } catch (error) {
@@ -180,6 +186,18 @@ async function check(value: number) {
             >
               {{ $t('common.add') }}
             </UButton>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5">
+              {{ $t('checkin.addNote') }}
+            </label>
+            <UTextarea
+              v-model="notes"
+              :placeholder="$t('checkin.notePlaceholder')"
+              :rows="2"
+            />
           </div>
 
           <!-- Quick actions -->

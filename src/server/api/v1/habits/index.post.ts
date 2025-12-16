@@ -62,7 +62,8 @@ export default defineEventHandler(async (event) => {
     unit: body.unit ?? null,
     color: body.color ?? null,
     icon: body.icon ?? null,
-    sortOrder: body.sort_order
+    sortOrder: body.sort_order,
+    promptForNotes: body.prompt_for_notes ?? false
   }).returning()
 
   const created = result[0]
@@ -91,6 +92,7 @@ export default defineEventHandler(async (event) => {
     icon: created.icon,
     sort_order: created.sortOrder,
     archived: created.archived,
+    prompt_for_notes: created.promptForNotes,
     created_at: created.createdAt,
     updated_at: created.updatedAt
   }

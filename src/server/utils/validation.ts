@@ -77,7 +77,8 @@ const baseHabitSchema = z.object({
   color: colorSchema,
   icon: iconSchema,
   category_id: z.string().uuid().nullable().optional(),
-  sort_order: z.number().int().default(0)
+  sort_order: z.number().int().default(0),
+  prompt_for_notes: z.boolean().optional()
 })
 
 export const createHabitSchema = baseHabitSchema.refine(
@@ -111,7 +112,8 @@ const baseUpdateHabitSchema = z.object({
   icon: iconSchema,
   category_id: z.string().uuid().nullable().optional(),
   sort_order: z.number().int().optional(),
-  archived: z.boolean().optional()
+  archived: z.boolean().optional(),
+  prompt_for_notes: z.boolean().optional()
 })
 
 export const updateHabitSchema = baseUpdateHabitSchema.refine(
