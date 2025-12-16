@@ -139,6 +139,7 @@ The API supports two authentication methods:
 
   pwa: {
     registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
     manifest: {
       name: 'HabitWire',
       short_name: 'HabitWire',
