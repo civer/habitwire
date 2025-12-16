@@ -125,6 +125,7 @@
   "settings": {
     "general": "Allgemein",
     "display": "Anzeige",
+    "data": "Daten",
     "security": "Sicherheit",
     "groupByCategory": "Nach Kategorie gruppieren",
     "groupByCategoryDescription": "Gewohnheiten nach Kategorie auf dem Dashboard gruppieren",
@@ -137,7 +138,11 @@
     "weekStartsOn": "Woche beginnt am",
     "weekStartsOnDescription": "Erster Tag der Woche für visuelle Trennung",
     "enableNotes": "Notizen aktivieren",
-    "enableNotesDescription": "Ermöglicht das Hinzufügen von Notizen beim Abhaken"
+    "enableNotesDescription": "Ermöglicht das Hinzufügen von Notizen beim Abhaken",
+    "exportData": "Daten exportieren",
+    "exportDataDescription": "Alle Gewohnheiten und Check-ins herunterladen",
+    "exportJson": "JSON exportieren",
+    "exportCsv": "CSV exportieren"
   },
   "stats": {
     "currentStreak": "Aktuelle Serie",

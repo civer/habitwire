@@ -7,7 +7,7 @@ const toast = useToast()
 
 const categoryKey = ref(0)
 const apiKeyKey = ref(0)
-const activeSection = ref<'general' | 'display' | 'categories' | 'api' | 'security'>('general')
+const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'security'>('general')
 
 const { data: userData, refresh: refreshUser } = await useFetch<UserResponse>('/api/v1/auth/me')
 const allowBackfill = ref(userData.value?.user?.settings?.allowBackfill ?? false)
@@ -71,6 +71,10 @@ function refreshCategories() {
 function refreshApiKeys() {
   apiKeyKey.value++
 }
+
+function exportData(format: 'json' | 'csv') {
+  window.open(`/api/v1/export?format=${format}`, '_blank')
+}
 </script>
 
 <template>
@@ -106,6 +110,19 @@ function refreshApiKeys() {
                 class="w-4 h-4 mr-2 inline-block"
               />
               {{ $t('settings.display') }}
+            </button>
+          </li>
+          <li>
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+              :class="activeSection === 'data' ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              @click="activeSection = 'data'"
+            >
+              <UIcon
+                name="i-lucide-download"
+                class="w-4 h-4 mr-2 inline-block"
+              />
+              {{ $t('settings.data') }}
             </button>
           </li>
           <li>
@@ -268,6 +285,44 @@ function refreshApiKeys() {
                 class="w-24"
                 @update:model-value="(v) => updateSetting('weekStartsOn', v, weekStartsOn)"
               />
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Data Section -->
+        <UCard v-if="activeSection === 'data'">
+          <template #header>
+            <h2 class="text-lg font-semibold">
+              {{ $t('settings.data') }}
+            </h2>
+          </template>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium">
+                  {{ $t('settings.exportData') }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ $t('settings.exportDataDescription') }}
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <UButton
+                  variant="outline"
+                  icon="i-lucide-file-json"
+                  @click="exportData('json')"
+                >
+                  {{ $t('settings.exportJson') }}
+                </UButton>
+                <UButton
+                  variant="outline"
+                  icon="i-lucide-file-spreadsheet"
+                  @click="exportData('csv')"
+                >
+                  {{ $t('settings.exportCsv') }}
+                </UButton>
+              </div>
             </div>
           </div>
         </UCard>

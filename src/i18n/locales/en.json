@@ -125,6 +125,7 @@
   "settings": {
     "general": "General",
     "display": "Display",
+    "data": "Data",
     "security": "Security",
     "groupByCategory": "Group by category",
     "groupByCategoryDescription": "Group habits by their category on the dashboard",
@@ -137,7 +138,11 @@
     "weekStartsOn": "Week starts on",
     "weekStartsOnDescription": "First day of the week for visual separators",
     "enableNotes": "Enable notes",
-    "enableNotesDescription": "Allow adding notes when checking habits"
+    "enableNotesDescription": "Allow adding notes when checking habits",
+    "exportData": "Export data",
+    "exportDataDescription": "Download all your habits and check-ins",
+    "exportJson": "Export JSON",
+    "exportCsv": "Export CSV"
   },
   "stats": {
     "currentStreak": "Current streak",
