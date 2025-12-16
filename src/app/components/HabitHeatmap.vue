@@ -2,7 +2,7 @@
 const { t } = useI18n()
 
 const props = defineProps<{
-  checkins: { date: string, value: number | null, skipped: boolean }[]
+  checkins: { date: string, value: number | null, skipped: boolean, notes?: string | null }[]
   habitType: string
   targetValue?: number | null
   unit?: string | null
@@ -11,9 +11,9 @@ const props = defineProps<{
 
 // Build checkin map for quick lookup
 const checkinMap = computed(() => {
-  const map = new Map<string, { value: number | null, skipped: boolean }>()
+  const map = new Map<string, { value: number | null, skipped: boolean, notes?: string | null }>()
   for (const c of props.checkins || []) {
-    map.set(c.date, { value: c.value, skipped: c.skipped })
+    map.set(c.date, { value: c.value, skipped: c.skipped, notes: c.notes })
   }
   return map
 })
@@ -25,7 +25,7 @@ const series = computed(() => {
 
   // Days of week (reverse order for display: Sat at top, Sun at bottom like GitHub)
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const seriesData: { name: string, data: { x: string, y: number, meta?: { date: string } }[] }[] = dayNames.map(name => ({
+  const seriesData: { name: string, data: { x: string, y: number, meta?: { date: string, notes?: string | null } }[] }[] = dayNames.map(name => ({
     name,
     data: []
   }))
@@ -66,7 +66,7 @@ const series = computed(() => {
         dayData.data.push({
           x: weekLabel || ' ',
           y: value,
-          meta: { date: displayDate }
+          meta: { date: displayDate, notes: checkin?.notes }
         })
       }
 
@@ -150,7 +150,8 @@ const chartOptions = computed(() => {
         }
       },
       axisBorder: { show: false },
-      axisTicks: { show: false }
+      axisTicks: { show: false },
+      tooltip: { enabled: false }
     },
     yaxis: {
       labels: {
@@ -174,12 +175,13 @@ const chartOptions = computed(() => {
     tooltip: {
       enabled: true,
       theme: isDark.value ? 'dark' : 'light',
-      custom: ({ seriesIndex, dataPointIndex, w }: { seriesIndex: number, dataPointIndex: number, w: { config: { series: Array<{ data: Array<{ x: string, y: number, meta?: { date?: string } }> }> } } }) => {
+      custom: ({ seriesIndex, dataPointIndex, w }: { seriesIndex: number, dataPointIndex: number, w: { config: { series: Array<{ data: Array<{ x: string, y: number, meta?: { date?: string, notes?: string | null } }> }> } } }) => {
         const seriesItem = w.config.series[seriesIndex]
         const data = seriesItem?.data[dataPointIndex]
         if (!data) return ''
         const value = data.y
         const date = data.meta?.date || ''
+        const notes = data.meta?.notes || ''
 
         let status = ''
         if (value === -1) {
@@ -194,9 +196,15 @@ const chartOptions = computed(() => {
           status = t('habits.completed')
         }
 
+        let noteHtml = ''
+        if (notes) {
+          noteHtml = `<div class="text-gray-400 italic mt-1 max-w-[200px] truncate">${notes}</div>`
+        }
+
         return `<div class="px-2 py-1 text-sm">
           <div class="font-medium">${status}</div>
           <div class="text-gray-500">${date}</div>
+          ${noteHtml}
         </div>`
       }
     },

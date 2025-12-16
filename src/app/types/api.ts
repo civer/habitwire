@@ -18,6 +18,7 @@ export interface HabitResponse {
   color: string | null
   category_id: string | null
   archived: boolean | null
+  prompt_for_notes: boolean | null
   created_at: string | null
   updated_at: string | null
 }
@@ -27,6 +28,7 @@ export interface RecentCheckin {
   date: string
   value: number | null
   skipped: boolean | null
+  notes: string | null
 }
 
 export interface HabitWithCheckinsResponse extends HabitResponse {
@@ -57,6 +59,7 @@ export interface UserResponse {
       skippedBreaksStreak?: boolean
       desktopDaysToShow?: number
       weekStartsOn?: 'monday' | 'sunday'
+      enableNotes?: boolean
     } | null
   }
 }
@@ -91,5 +94,6 @@ export interface HabitStatsResponse {
     date: string
     value: number | null
     skipped: boolean
+    notes?: string | null
   }[]
 }

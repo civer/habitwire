@@ -58,7 +58,8 @@
     "activeDays": "Aktive Tage",
     "timesPerWeek": "Mal pro Woche",
     "habitType": "Art",
-    "habitTypeSimple": "Einfaches Abhaken",
+    "habitTypeSimple": "Einfach",
+    "habitTypeWithNote": "Mit Notiz",
     "habitTypeTarget": "Zielwert",
     "targetValue": "Ziel",
     "defaultIncrement": "Standardwert",
@@ -78,7 +79,16 @@
       "sat": "Sa",
       "sun": "So"
     },
-    "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie"
+    "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie",
+    "promptForNotes": "Nach Notiz fragen",
+    "promptForNotesDescription": "Öffnet einen Dialog zum Hinzufügen einer Notiz beim Abhaken"
+  },
+  "checkin": {
+    "addNote": "Notiz hinzufügen",
+    "notePlaceholder": "Was beschäftigt dich?",
+    "checkWithNote": "Mit Notiz abhaken",
+    "checkWithoutNote": "Ohne Notiz abhaken",
+    "note": "Notiz"
   },
   "categories": {
     "title": "Kategorien",
@@ -124,7 +134,9 @@
     "desktopDaysToShow": "Angezeigte Tage",
     "desktopDaysToShowDescription": "Anzahl der Tage in der Desktop-Wochenansicht",
     "weekStartsOn": "Woche beginnt am",
-    "weekStartsOnDescription": "Erster Tag der Woche für visuelle Trennung"
+    "weekStartsOnDescription": "Erster Tag der Woche für visuelle Trennung",
+    "enableNotes": "Notizen aktivieren",
+    "enableNotesDescription": "Ermöglicht das Hinzufügen von Notizen beim Abhaken"
   },
   "stats": {
     "currentStreak": "Aktuelle Serie",

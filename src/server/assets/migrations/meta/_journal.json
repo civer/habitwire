@@ -50,6 +50,13 @@
       "when": 1765536413273,
       "tag": "0006_empty_thunderbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1765873943167,
+      "tag": "0007_useful_the_liberteens",
+      "breakpoints": true
     }
   ]
 }

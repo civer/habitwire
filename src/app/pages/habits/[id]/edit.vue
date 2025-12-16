@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { getErrorMessage } from '~/types/error'
-import type { HabitResponse, CategoryResponse } from '~/types/api'
+import type { HabitResponse, CategoryResponse, UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -13,6 +13,8 @@ const habitId = route.params.id as string
 
 const { data: habit, error: habitError } = await useFetch<HabitResponse>(`/api/v1/habits/${habitId}`)
 const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categories')
+const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
+const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?? false)
 
 if (habitError.value || !habit.value) {
   throw createError({
@@ -33,7 +35,8 @@ const baseSchema = z.object({
   unit: z.string().optional(),
   category_id: z.string().nullish(),
   icon: z.string().optional(),
-  color: z.string().optional()
+  color: z.string().optional(),
+  prompt_for_notes: z.boolean().optional()
 })
 
 const schema = baseSchema.superRefine((data, ctx) => {
@@ -57,10 +60,20 @@ const schema = baseSchema.superRefine((data, ctx) => {
 
 type Schema = z.output<typeof schema>
 
+// Derive initial selection from habit_type and prompt_for_notes
+function getInitialSelection(): 'SIMPLE' | 'WITH_NOTE' | 'TARGET' {
+  if (habit.value!.habit_type === 'TARGET') return 'TARGET'
+  if (habit.value!.prompt_for_notes) return 'WITH_NOTE'
+  return 'SIMPLE'
+}
+
+const initialSelection = getInitialSelection()
+
 const state = reactive({
   title: habit.value.title || '',
   description: habit.value.description || '',
-  habit_type: (habit.value.habit_type || 'SIMPLE') as 'SIMPLE' | 'TARGET',
+  habit_selection: initialSelection,
+  habit_type: (initialSelection === 'TARGET' ? 'TARGET' : 'SIMPLE') as 'SIMPLE' | 'TARGET',
   frequency_type: (habit.value.frequency_type || 'DAILY') as 'DAILY' | 'WEEKLY' | 'CUSTOM',
   frequency_value: habit.value.frequency_value || 1,
   active_days: (habit.value.active_days as number[] | null) || [1, 2, 3, 4, 5],
@@ -70,6 +83,11 @@ const state = reactive({
   category_id: habit.value.category_id || undefined,
   icon: habit.value.icon || 'i-lucide-target',
   color: habit.value.color || ''
+})
+
+// Keep habit_type in sync with habit_selection for schema validation
+watch(() => state.habit_selection, (selection) => {
+  state.habit_type = selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
 })
 
 const weekdays = computed(() => [
@@ -129,10 +147,21 @@ watch(() => state.frequency_type, () => {
   formRef.value?.clear()
 })
 
-const habitTypeItems = computed(() => [
-  { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
-  { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
-])
+const isTargetHabit = computed(() => state.habit_selection === 'TARGET')
+
+const habitTypeItems = computed(() => {
+  if (enableNotes.value) {
+    return [
+      { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
+      { label: t('habits.habitTypeWithNote'), value: 'WITH_NOTE', icon: 'i-lucide-message-square' },
+      { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
+    ]
+  }
+  return [
+    { label: t('habits.habitTypeSimple'), value: 'SIMPLE', icon: 'i-lucide-check-circle' },
+    { label: t('habits.habitTypeTarget'), value: 'TARGET', icon: 'i-lucide-target' }
+  ]
+})
 
 const frequencyItems = computed(() => [
   { label: t('habits.frequencyDaily'), value: 'DAILY', icon: 'i-lucide-calendar-days' },
@@ -147,17 +176,22 @@ const categoryOptions = computed(() =>
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
+    // Map selection to actual habit_type and prompt_for_notes
+    const habitType = state.habit_selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
+    const promptForNotes = state.habit_selection === 'WITH_NOTE'
+
     const body = {
       ...event.data,
-      habit_type: state.habit_type,
+      habit_type: habitType,
       category_id: event.data.category_id || null,
-      target_value: state.habit_type === 'TARGET' ? state.target_value : null,
-      default_increment: state.habit_type === 'TARGET' ? state.default_increment : null,
-      unit: state.habit_type === 'TARGET' ? (event.data.unit || null) : null,
+      target_value: isTargetHabit.value ? state.target_value : null,
+      default_increment: isTargetHabit.value ? state.default_increment : null,
+      unit: isTargetHabit.value ? (event.data.unit || null) : null,
       active_days: state.frequency_type === 'WEEKLY' ? state.active_days : null,
       frequency_value: state.frequency_type === 'CUSTOM' ? state.frequency_value : 1,
       icon: event.data.icon || null,
-      color: event.data.color || null
+      color: event.data.color || null,
+      prompt_for_notes: promptForNotes
     }
     await $fetch(`/api/v1/habits/${habitId}` as '/api/v1/habits/:id', {
       method: 'PUT',
@@ -236,7 +270,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           name="habit_type"
         >
           <URadioGroup
-            v-model="state.habit_type"
+            v-model="state.habit_selection"
             :items="habitTypeItems"
             orientation="horizontal"
             variant="card"
@@ -244,7 +278,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           />
           <!-- Target value fields - inline below habit type -->
           <div
-            v-if="state.habit_type === 'TARGET'"
+            v-if="isTargetHabit"
             class="flex gap-2 mt-3 items-end"
           >
             <div class="flex-1">

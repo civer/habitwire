@@ -6,6 +6,7 @@ interface RecentCheckin {
   date: string
   value?: number | null
   skipped: boolean | null
+  notes?: string | null
 }
 
 interface Habit {
@@ -23,6 +24,7 @@ interface Habit {
   icon?: string | null
   category_id?: string | null
   current_streak?: number
+  prompt_for_notes?: boolean | null
   category?: {
     id: string
     name: string
@@ -37,6 +39,7 @@ const props = defineProps<{
   allowBackfill?: boolean
   daysToShow?: number
   weekStartsOn?: 'monday' | 'sunday'
+  enableNotes?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -60,6 +63,10 @@ const loadingDay = ref<string | null>(null)
 // Modal state for TARGET habits
 const showTargetModal = ref(false)
 const modalDate = ref<string>(today)
+
+// Modal state for SIMPLE habits with notes
+const showNoteModal = ref(false)
+const noteModalDate = ref<string>(today)
 
 const isTargetHabit = computed(() => props.habit.habit_type === 'TARGET')
 const targetValue = computed(() => props.habit.target_value ?? null)
@@ -172,24 +179,32 @@ const weeklyCompletedCount = computed(() => {
 
 function getDayTooltip(day: { date: string, dayName: string, isToday: boolean }): string {
   const status = getDayStatus(day.date)
+  const checkin = checkinsByDate.value.get(day.date)
+  const note = checkin?.notes
 
+  let statusText = ''
   if (status === 'skipped') {
-    return t('habits.skipped')
-  }
-  if (status === 'completed') {
+    statusText = t('habits.skipped')
+  } else if (status === 'completed') {
     if (isTargetHabit.value && targetValue.value) {
-      const checkin = checkinsByDate.value.get(day.date)
       const val = checkin?.value ?? 0
-      return `${val}/${targetValue.value} ✓`
+      statusText = `${val}/${targetValue.value} ✓`
+    } else {
+      statusText = t('habits.completed')
     }
-    return t('habits.completed')
-  }
-  if (status === 'partial') {
-    const checkin = checkinsByDate.value.get(day.date)
+  } else if (status === 'partial') {
     const val = checkin?.value ?? 0
-    return `${val}/${targetValue.value}`
+    statusText = `${val}/${targetValue.value}`
   }
-  return ''
+
+  // Append note if present
+  if (note && statusText) {
+    return `${statusText} - ${note}`
+  }
+  if (note) {
+    return note
+  }
+  return statusText
 }
 
 async function check(value?: number, date?: string) {
@@ -291,6 +306,11 @@ function openTargetModal(date: string) {
   showTargetModal.value = true
 }
 
+function openNoteModal(date: string) {
+  noteModalDate.value = date
+  showNoteModal.value = true
+}
+
 function getModalCurrentValue(): number {
   const checkin = checkinsByDate.value.get(modalDate.value)
   return checkin?.value ?? 0
@@ -302,6 +322,9 @@ function toggleCheck() {
     openTargetModal(today)
   } else if (isCompleted.value) {
     uncheck()
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
+    openNoteModal(today)
   } else {
     check()
   }
@@ -318,9 +341,12 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
     return
   }
 
-  // Non-TARGET habits: simple toggle
+  // Non-TARGET habits
   if (status === 'completed') {
     uncheck(day.date)
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
+    openNoteModal(day.date)
   } else {
     check(undefined, day.date)
   }
@@ -545,6 +571,19 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
       :default-increment="defaultIncrement"
       :current-value="getModalCurrentValue()"
       :date="modalDate"
+      :enable-notes="enableNotes"
+      @checked="emit('checked')"
+    />
+
+    <!-- SIMPLE habit note modal (for prompt_for_notes or long-press) -->
+    <HabitNoteModal
+      v-if="!isTargetHabit"
+      v-model:open="showNoteModal"
+      :habit-id="habit.id"
+      :habit-title="habit.title"
+      :habit-icon="habit.icon"
+      :habit-color="habit.color"
+      :date="noteModalDate"
       @checked="emit('checked')"
     />
   </UCard>

@@ -156,11 +156,13 @@ export default defineEventHandler(async (event) => {
             icon: h.category.icon
           }
         : null,
+      prompt_for_notes: h.promptForNotes,
       recent_checkins: (checkinsByHabit.get(h.id) || []).map(c => ({
         id: c.id,
         date: c.date,
         value: c.value,
-        skipped: c.skipped
+        skipped: c.skipped,
+        notes: c.notes
       }))
     }
   })
