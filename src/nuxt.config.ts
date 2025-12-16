@@ -9,7 +9,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     'nuxt-auth-utils',
     '@nuxtjs/i18n',
-    'nuxt-security'
+    'nuxt-security',
+    '@vite-pwa/nuxt'
   ],
 
   devtools: {
@@ -18,7 +19,13 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-icon-180.png' }
+      ],
+      meta: [
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        { name: 'apple-mobile-web-app-title', content: 'HabitWire' }
       ]
     }
   },
@@ -127,6 +134,59 @@ The API supports two authentication methods:
       useCookie: true,
       cookieKey: 'i18n_locale',
       fallbackLocale: 'en'
+    }
+  },
+
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'HabitWire',
+      short_name: 'HabitWire',
+      description: 'Self-hosted habit tracker',
+      theme_color: '#22c55e',
+      background_color: '#ffffff',
+      display: 'standalone',
+      icons: [
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ]
+    },
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/.*\.(png|jpg|jpeg|svg|gif|webp)$/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            }
+          }
+        }
+      ]
+    },
+    client: {
+      installPrompt: true
+    },
+    devOptions: {
+      enabled: false // Enable in dev for testing: true
     }
   },
 
