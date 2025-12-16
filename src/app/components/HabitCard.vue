@@ -164,15 +164,34 @@ function getDayProgress(date: string): number {
   return Math.min(100, (checkin.value / targetValue.value) * 100)
 }
 
-// For CUSTOM: count completed days this week (last 7 days)
+// For CUSTOM: count completed days in current calendar week
 const weeklyCompletedCount = computed(() => {
   if (!isCustom.value) return 0
+
+  // Get current week start (Monday or Sunday based on setting)
+  const now = new Date()
+  const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, ...
+
+  // Calculate days since week start
+  let daysSinceWeekStart: number
+  if (weekStart.value === 'monday') {
+    daysSinceWeekStart = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+  } else {
+    daysSinceWeekStart = dayOfWeek
+  }
+
+  // Get start of current week
+  const currentWeekStart = new Date(now)
+  currentWeekStart.setDate(now.getDate() - daysSinceWeekStart)
+  const weekStartStr = formatDateString(currentWeekStart)
+
+  // Count completed days in current week
   let count = 0
-  // Only count last 7 days for weekly progress
-  const last7 = displayDays.value.slice(-7)
-  for (const day of last7) {
-    const status = getDayStatus(day.date)
-    if (status === 'completed') count++
+  for (const day of displayDays.value) {
+    if (day.date >= weekStartStr && day.date <= today) {
+      const status = getDayStatus(day.date)
+      if (status === 'completed') count++
+    }
   }
   return count
 })

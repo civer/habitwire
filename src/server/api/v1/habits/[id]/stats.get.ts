@@ -57,6 +57,7 @@ export default defineEventHandler(async (event) => {
     })),
     {
       frequencyType: habit.frequencyType,
+      frequencyValue: habit.frequencyValue,
       activeDays: habit.activeDays as number[] | null,
       habitType: habit.habitType,
       targetValue: habit.targetValue,
