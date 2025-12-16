@@ -114,7 +114,10 @@
     "language": "Sprache",
     "error": "Fehler",
     "never": "Nie",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "skipToContent": "Zum Inhalt springen",
+    "toggleColorMode": "Farbmodus wechseln",
+    "userMenu": "Benutzermenü"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -176,5 +179,11 @@
     "lastUsed": "Zuletzt verwendet",
     "deleteSuccess": "API-Schlüssel gelöscht",
     "deleteError": "API-Schlüssel konnte nicht gelöscht werden"
+  },
+  "pwa": {
+    "installTitle": "HabitWire installieren",
+    "installDescription": "Zum Startbildschirm hinzufügen für schnellen Zugriff",
+    "install": "Installieren",
+    "later": "Später"
   }
 }

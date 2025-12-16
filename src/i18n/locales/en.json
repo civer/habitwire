@@ -114,7 +114,10 @@
     "language": "Language",
     "error": "Error",
     "never": "Never",
-    "undo": "Undo"
+    "undo": "Undo",
+    "skipToContent": "Skip to content",
+    "toggleColorMode": "Toggle color mode",
+    "userMenu": "User menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -176,5 +179,11 @@
     "lastUsed": "Last used",
     "deleteSuccess": "API key deleted",
     "deleteError": "Failed to delete API key"
+  },
+  "pwa": {
+    "installTitle": "Install HabitWire",
+    "installDescription": "Add to your home screen for quick access",
+    "install": "Install",
+    "later": "Later"
   }
 }
