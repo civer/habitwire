@@ -17,6 +17,7 @@ export interface Checkin {
 
 export interface HabitConfig {
   frequencyType: string
+  frequencyValue: number | null // For CUSTOM: times per week needed
   activeDays: number[] | null
   habitType: string
   targetValue: number | null
@@ -33,16 +34,16 @@ export interface StreakResult {
 }
 
 /**
- * Check if a checkin counts as completed
+ * Check if a checkin counts as actually completed (for streak counting)
+ * Skips are never counted as completed - they just don't break the streak
  */
-function isCompleted(
+function isActuallyCompleted(
   checkin: { skipped: boolean, value: number | null } | undefined,
   habitType: string,
-  targetValue: number | null,
-  skippedBreaksStreak: boolean
+  targetValue: number | null
 ): boolean {
   if (!checkin) return false
-  if (checkin.skipped) return !skippedBreaksStreak
+  if (checkin.skipped) return false // Skips don't count as completed
 
   // Only check target value for TARGET habits
   if (habitType === 'TARGET' && targetValue) {
@@ -52,6 +53,17 @@ function isCompleted(
   }
 
   return true
+}
+
+/**
+ * Check if a skipped checkin should be treated as "not breaking" the streak
+ */
+function isSkipPreservingStreak(
+  checkin: { skipped: boolean, value: number | null } | undefined,
+  skippedBreaksStreak: boolean
+): boolean {
+  if (!checkin) return false
+  return checkin.skipped && !skippedBreaksStreak
 }
 
 /**
@@ -93,7 +105,55 @@ function getActiveDaysInWeek(weekStart: Date, activeDays: number[]): Date[] {
 type WeekStatus = 'completed' | 'incomplete' | 'grace'
 
 /**
- * Check if a week is completed, incomplete, or in grace period
+ * Get week status for CUSTOM habits (X times per week, any day)
+ */
+function getCustomWeekStatus(
+  weekStart: Date,
+  frequencyValue: number,
+  checkinMap: Map<string, { skipped: boolean, value: number | null }>,
+  today: Date,
+  habitType: string,
+  targetValue: number | null
+): WeekStatus {
+  const todayStr = formatDateLocal(today)
+  let completedCount = 0
+
+  // Check all 7 days of the week
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart)
+    d.setDate(d.getDate() + i)
+    d.setHours(12, 0, 0, 0)
+    const dayStr = formatDateLocal(d)
+
+    // Skip future days
+    if (dayStr > todayStr) continue
+
+    const checkin = checkinMap.get(dayStr)
+    if (isActuallyCompleted(checkin, habitType, targetValue)) {
+      completedCount++
+    }
+  }
+
+  // Check if we've met the required frequency
+  if (completedCount >= frequencyValue) {
+    return 'completed'
+  }
+
+  // Check if there are still future days in this week (grace period)
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekEnd.getDate() + 6)
+  const weekEndStr = formatDateLocal(weekEnd)
+
+  if (todayStr < weekEndStr) {
+    // Still have days left this week - grace period
+    return 'grace'
+  }
+
+  return 'incomplete'
+}
+
+/**
+ * Check if a week is completed, incomplete, or in grace period (for WEEKLY habits)
  */
 function getWeekStatus(
   weekStart: Date,
@@ -110,7 +170,7 @@ function getWeekStatus(
     return 'completed' // No active days in this week = automatically completed
   }
 
-  let allPastDaysCompleted = true
+  let allPastDaysOk = true // completed or skip-preserved
   let hasGrace = false
 
   const todayStr = formatDateLocal(today)
@@ -123,19 +183,23 @@ function getWeekStatus(
       // Day is in the future - grace period
       hasGrace = true
     } else if (dayStr === todayStr) {
-      // Today - check if completed, otherwise grace
-      if (!isCompleted(checkin, habitType, targetValue, skippedBreaksStreak)) {
+      // Today - check if completed or skip-preserved, otherwise grace
+      const isOk = isActuallyCompleted(checkin, habitType, targetValue)
+        || isSkipPreservingStreak(checkin, skippedBreaksStreak)
+      if (!isOk) {
         hasGrace = true
       }
     } else {
-      // Past day - must be completed
-      if (!isCompleted(checkin, habitType, targetValue, skippedBreaksStreak)) {
-        allPastDaysCompleted = false
+      // Past day - must be completed OR skip-preserved
+      const isOk = isActuallyCompleted(checkin, habitType, targetValue)
+        || isSkipPreservingStreak(checkin, skippedBreaksStreak)
+      if (!isOk) {
+        allPastDaysOk = false
       }
     }
   }
 
-  if (!allPastDaysCompleted) return 'incomplete'
+  if (!allPastDaysOk) return 'incomplete'
   if (hasGrace) return 'grace'
   return 'completed'
 }
@@ -157,14 +221,21 @@ function calculateDailyStreak(
     const dateStr = formatDateLocal(currentDate)
     const checkin = checkinMap.get(dateStr)
 
-    if (isCompleted(checkin, habit.habitType, habit.targetValue, skippedBreaksStreak)) {
+    // Check if this is a skip that preserves the streak (but doesn't count)
+    if (isSkipPreservingStreak(checkin, skippedBreaksStreak)) {
+      // Skip preserves streak but doesn't count toward it - continue to previous day
+      currentDate.setDate(currentDate.getDate() - 1)
+      continue
+    }
+
+    if (isActuallyCompleted(checkin, habit.habitType, habit.targetValue)) {
       currentStreak++
     } else {
       // Grace period for today only
       if (dateStr === todayStr) {
         // Today not completed yet - continue checking yesterday
       } else {
-        // Past day not completed - streak is broken
+        // Past day not completed (or skip that breaks streak) - streak is broken
         break
       }
     }
@@ -185,9 +256,16 @@ function calculateWeeklyStreak(
   today: Date
 ): number {
   const weekStartsOn = habit.weekStartsOn ?? 1
-  const activeDays = habit.activeDays || []
+  const isCustom = habit.frequencyType === 'CUSTOM'
+  const frequencyValue = habit.frequencyValue ?? 1
 
-  if (activeDays.length === 0) return 0
+  // For WEEKLY, we need activeDays
+  if (!isCustom) {
+    const activeDays = habit.activeDays || []
+    if (activeDays.length === 0) {
+      return 0
+    }
+  }
 
   let currentStreak = 0
   const currentWeekStart = getWeekStart(today, weekStartsOn)
@@ -197,23 +275,37 @@ function calculateWeeklyStreak(
     const weekStart = new Date(currentWeekStart)
     weekStart.setDate(weekStart.getDate() - weekOffset * 7)
 
-    const status = getWeekStatus(
-      weekStart,
-      activeDays,
-      checkinMap,
-      today,
-      habit.habitType,
-      habit.targetValue,
-      skippedBreaksStreak
-    )
+    let status: WeekStatus
+
+    if (isCustom) {
+      // CUSTOM: X times per week, any day
+      status = getCustomWeekStatus(
+        weekStart,
+        frequencyValue,
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue
+      )
+    } else {
+      // WEEKLY: specific days must be completed
+      status = getWeekStatus(
+        weekStart,
+        habit.activeDays || [],
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue,
+        skippedBreaksStreak
+      )
+    }
 
     if (status === 'completed') {
       currentStreak++
     } else if (status === 'grace') {
-      // Current week in grace period - continue checking previous weeks
+      // Grace: week not finished yet, but on track - don't break, don't count
       continue
     } else {
-      // Week incomplete - streak is broken
       break
     }
   }
@@ -340,7 +432,15 @@ function calculateDailyStreakStats(
 
     totalExpectedDays++
 
-    if (isCompleted(checkin, habit.habitType, habit.targetValue, skippedBreaksStreak)) {
+    // Check if this is a skip that preserves the streak
+    if (isSkipPreservingStreak(checkin, skippedBreaksStreak)) {
+      // Skip preserves streak but doesn't count toward it or completion rate
+      // Don't increment tempStreak, don't count as completed, don't break streak
+      currentDate.setDate(currentDate.getDate() - 1)
+      continue
+    }
+
+    if (isActuallyCompleted(checkin, habit.habitType, habit.targetValue)) {
       totalCheckins++
       tempStreak++
 
@@ -385,10 +485,13 @@ function calculateWeeklyStreakStats(
   earliestDate: Date | null
 ): StreakResult {
   const weekStartsOn = habit.weekStartsOn ?? 1
+  const isCustom = habit.frequencyType === 'CUSTOM'
+  const frequencyValue = habit.frequencyValue ?? 1
   const activeDays = habit.activeDays || []
   const todayStr = formatDateLocal(today)
 
-  if (activeDays.length === 0) {
+  // For WEEKLY, we need activeDays
+  if (!isCustom && activeDays.length === 0) {
     return {
       currentStreak: 0,
       longestStreak: 0,
@@ -416,34 +519,64 @@ function calculateWeeklyStreakStats(
     const weekStart = new Date(currentWeekStart)
     weekStart.setDate(weekStart.getDate() - weekOffset * 7)
 
-    // Count active days and completions for this week
-    const activeDaysInWeek = getActiveDaysInWeek(weekStart, activeDays)
+    // Count completions for this week
+    if (isCustom) {
+      // CUSTOM: count all days, expected = frequencyValue per week
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStart)
+        d.setDate(d.getDate() + i)
+        d.setHours(12, 0, 0, 0)
+        const dayStr = formatDateLocal(d)
 
-    for (const day of activeDaysInWeek) {
-      const dayStr = formatDateLocal(day)
+        if (dayStr > todayStr) continue
+        if (earliestDate && d < earliestDate) continue
 
-      // Only count days up to today and from earliestDate
-      if (dayStr > todayStr) continue
-      if (earliestDate && day < earliestDate) continue
+        const checkin = checkinMap.get(dayStr)
+        if (isActuallyCompleted(checkin, habit.habitType, habit.targetValue)) {
+          totalCheckins++
+        }
+      }
+      // For CUSTOM, expected is frequencyValue per week (count weeks, not days)
+      totalExpectedDays += frequencyValue
+    } else {
+      // WEEKLY: count only active days
+      const activeDaysInWeek = getActiveDaysInWeek(weekStart, activeDays)
+      for (const day of activeDaysInWeek) {
+        const dayStr = formatDateLocal(day)
+        if (dayStr > todayStr) continue
+        if (earliestDate && day < earliestDate) continue
 
-      totalExpectedDays++
-      const checkin = checkinMap.get(dayStr)
-
-      if (isCompleted(checkin, habit.habitType, habit.targetValue, skippedBreaksStreak)) {
-        totalCheckins++
+        totalExpectedDays++
+        const checkin = checkinMap.get(dayStr)
+        if (isActuallyCompleted(checkin, habit.habitType, habit.targetValue)) {
+          totalCheckins++
+        }
       }
     }
 
     // Check week status for streak calculation
-    const status = getWeekStatus(
-      weekStart,
-      activeDays,
-      checkinMap,
-      today,
-      habit.habitType,
-      habit.targetValue,
-      skippedBreaksStreak
-    )
+    let status: WeekStatus
+
+    if (isCustom) {
+      status = getCustomWeekStatus(
+        weekStart,
+        frequencyValue,
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue
+      )
+    } else {
+      status = getWeekStatus(
+        weekStart,
+        activeDays,
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue,
+        skippedBreaksStreak
+      )
+    }
 
     if (status === 'completed') {
       tempStreak++
@@ -456,7 +589,8 @@ function calculateWeeklyStreakStats(
         longestStreak = tempStreak
       }
     } else if (status === 'grace') {
-      // Current week in grace - continue without breaking streak
+      // Grace: week not finished yet, but on track - don't break, don't count
+      // Continue to previous weeks
     } else {
       // Week incomplete
       foundFirstMiss = true

@@ -23,6 +23,12 @@ if (habitError.value || !habit.value) {
 const isTargetHabit = computed(() => habit.value?.habit_type === 'TARGET')
 const targetValue = computed(() => habit.value?.target_value ?? null)
 
+// Show newest checkins first
+const sortedCheckins = computed(() => {
+  if (!checkins.value) return []
+  return [...checkins.value].reverse()
+})
+
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString(undefined, {
@@ -63,7 +69,7 @@ function getCheckinStatus(checkin: CheckinResponse): 'completed' | 'partial' | '
 
     <!-- Header with habit info -->
     <UCard class="mb-6">
-      <div class="flex items-start gap-4">
+      <div class="flex items-center gap-4">
         <div
           v-if="habit?.icon"
           class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -78,16 +84,10 @@ function getCheckinStatus(checkin: CheckinResponse): 'completed' | 'partial' | '
           />
         </div>
         <div class="flex-1 min-w-0">
-          <h1 class="text-xl font-bold truncate">
-            {{ habit?.title }}
-          </h1>
-          <p
-            v-if="habit?.description"
-            class="text-gray-500 dark:text-gray-400 mt-1"
-          >
-            {{ habit.description }}
-          </p>
-          <div class="flex flex-wrap gap-2 mt-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-xl font-bold truncate">
+              {{ habit?.title }}
+            </h1>
             <UBadge
               color="neutral"
               variant="subtle"
@@ -104,6 +104,12 @@ function getCheckinStatus(checkin: CheckinResponse): 'completed' | 'partial' | '
               {{ $t('habits.habitTypeTarget') }}: {{ targetValue }} {{ habit?.unit }}
             </UBadge>
           </div>
+          <p
+            v-if="habit?.description"
+            class="text-gray-500 dark:text-gray-400 mt-1"
+          >
+            {{ habit.description }}
+          </p>
         </div>
       </div>
     </UCard>
@@ -201,7 +207,7 @@ function getCheckinStatus(checkin: CheckinResponse): 'completed' | 'partial' | '
         class="divide-y divide-gray-200 dark:divide-gray-800"
       >
         <div
-          v-for="checkin in checkins"
+          v-for="checkin in sortedCheckins"
           :key="checkin.id"
           class="flex items-center justify-between py-3"
         >

@@ -69,6 +69,8 @@ function handleClick() {
 
     <button
       :disabled="loading || !isClickable"
+      :aria-label="tooltip || dayName"
+      :aria-pressed="status === 'completed' || status === 'partial'"
       class="relative w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
       :class="[
         status === 'completed'
@@ -89,22 +91,27 @@ function handleClick() {
         v-if="loading"
         name="i-lucide-loader-2"
         class="w-3 h-3 animate-spin"
+        aria-hidden="true"
       />
       <UIcon
         v-else-if="status === 'completed'"
         name="i-lucide-check"
         class="w-3 h-3"
+        aria-hidden="true"
       />
       <UIcon
         v-else-if="status === 'skipped'"
         name="i-lucide-minus"
         class="w-3 h-3 text-gray-400"
+        aria-hidden="true"
       />
     </button>
 
-    <!-- Tooltip -->
+    <!-- Tooltip (visual only, aria-label provides screen reader text) -->
     <div
       v-if="tooltip"
+      role="tooltip"
+      aria-hidden="true"
       class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap"
     >
       {{ tooltip }}

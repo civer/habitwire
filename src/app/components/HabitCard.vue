@@ -6,6 +6,7 @@ interface RecentCheckin {
   date: string
   value?: number | null
   skipped: boolean | null
+  notes?: string | null
 }
 
 interface Habit {
@@ -23,6 +24,7 @@ interface Habit {
   icon?: string | null
   category_id?: string | null
   current_streak?: number
+  prompt_for_notes?: boolean | null
   category?: {
     id: string
     name: string
@@ -37,6 +39,7 @@ const props = defineProps<{
   allowBackfill?: boolean
   daysToShow?: number
   weekStartsOn?: 'monday' | 'sunday'
+  enableNotes?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -60,6 +63,10 @@ const loadingDay = ref<string | null>(null)
 // Modal state for TARGET habits
 const showTargetModal = ref(false)
 const modalDate = ref<string>(today)
+
+// Modal state for SIMPLE habits with notes
+const showNoteModal = ref(false)
+const noteModalDate = ref<string>(today)
 
 const isTargetHabit = computed(() => props.habit.habit_type === 'TARGET')
 const targetValue = computed(() => props.habit.target_value ?? null)
@@ -157,39 +164,66 @@ function getDayProgress(date: string): number {
   return Math.min(100, (checkin.value / targetValue.value) * 100)
 }
 
-// For CUSTOM: count completed days this week (last 7 days)
+// For CUSTOM: count completed days in current calendar week
 const weeklyCompletedCount = computed(() => {
   if (!isCustom.value) return 0
+
+  // Get current week start (Monday or Sunday based on setting)
+  const now = new Date()
+  const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, ...
+
+  // Calculate days since week start
+  let daysSinceWeekStart: number
+  if (weekStart.value === 'monday') {
+    daysSinceWeekStart = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+  } else {
+    daysSinceWeekStart = dayOfWeek
+  }
+
+  // Get start of current week
+  const currentWeekStart = new Date(now)
+  currentWeekStart.setDate(now.getDate() - daysSinceWeekStart)
+  const weekStartStr = formatDateString(currentWeekStart)
+
+  // Count completed days in current week
   let count = 0
-  // Only count last 7 days for weekly progress
-  const last7 = displayDays.value.slice(-7)
-  for (const day of last7) {
-    const status = getDayStatus(day.date)
-    if (status === 'completed') count++
+  for (const day of displayDays.value) {
+    if (day.date >= weekStartStr && day.date <= today) {
+      const status = getDayStatus(day.date)
+      if (status === 'completed') count++
+    }
   }
   return count
 })
 
 function getDayTooltip(day: { date: string, dayName: string, isToday: boolean }): string {
   const status = getDayStatus(day.date)
+  const checkin = checkinsByDate.value.get(day.date)
+  const note = checkin?.notes
 
+  let statusText = ''
   if (status === 'skipped') {
-    return t('habits.skipped')
-  }
-  if (status === 'completed') {
+    statusText = t('habits.skipped')
+  } else if (status === 'completed') {
     if (isTargetHabit.value && targetValue.value) {
-      const checkin = checkinsByDate.value.get(day.date)
       const val = checkin?.value ?? 0
-      return `${val}/${targetValue.value} ✓`
+      statusText = `${val}/${targetValue.value} ✓`
+    } else {
+      statusText = t('habits.completed')
     }
-    return t('habits.completed')
-  }
-  if (status === 'partial') {
-    const checkin = checkinsByDate.value.get(day.date)
+  } else if (status === 'partial') {
     const val = checkin?.value ?? 0
-    return `${val}/${targetValue.value}`
+    statusText = `${val}/${targetValue.value}`
   }
-  return ''
+
+  // Append note if present
+  if (note && statusText) {
+    return `${statusText} - ${note}`
+  }
+  if (note) {
+    return note
+  }
+  return statusText
 }
 
 async function check(value?: number, date?: string) {
@@ -271,9 +305,12 @@ async function archive() {
     })
     emit('checked')
     toast.add({
-      title: t('habits.archive'),
-      description: t('habits.habitArchived'),
-      color: 'success'
+      title: t('habits.habitArchived'),
+      color: 'success',
+      actions: [{
+        label: t('common.undo'),
+        onClick: unarchive
+      }]
     })
   } catch (error) {
     toast.add({
@@ -286,9 +323,35 @@ async function archive() {
   }
 }
 
+async function unarchive() {
+  try {
+    await $fetch(`/api/v1/habits/${props.habit.id}` as '/api/v1/habits/:id', {
+      method: 'PUT',
+      body: { archived: false }
+    })
+    // Use refreshNuxtData since component may be unmounted after archive
+    await refreshNuxtData()
+    toast.add({
+      title: t('habits.habitRestored'),
+      color: 'success'
+    })
+  } catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: getErrorMessage(error),
+      color: 'error'
+    })
+  }
+}
+
 function openTargetModal(date: string) {
   modalDate.value = date
   showTargetModal.value = true
+}
+
+function openNoteModal(date: string) {
+  noteModalDate.value = date
+  showNoteModal.value = true
 }
 
 function getModalCurrentValue(): number {
@@ -302,6 +365,9 @@ function toggleCheck() {
     openTargetModal(today)
   } else if (isCompleted.value) {
     uncheck()
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
+    openNoteModal(today)
   } else {
     check()
   }
@@ -318,9 +384,12 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
     return
   }
 
-  // Non-TARGET habits: simple toggle
+  // Non-TARGET habits
   if (status === 'completed') {
     uncheck(day.date)
+  } else if (props.enableNotes && props.habit.prompt_for_notes) {
+    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
+    openNoteModal(day.date)
   } else {
     check(undefined, day.date)
   }
@@ -545,6 +614,19 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
       :default-increment="defaultIncrement"
       :current-value="getModalCurrentValue()"
       :date="modalDate"
+      :enable-notes="enableNotes"
+      @checked="emit('checked')"
+    />
+
+    <!-- SIMPLE habit note modal (for prompt_for_notes or long-press) -->
+    <HabitNoteModal
+      v-if="!isTargetHabit"
+      v-model:open="showNoteModal"
+      :habit-id="habit.id"
+      :habit-title="habit.title"
+      :habit-icon="habit.icon"
+      :habit-color="habit.color"
+      :date="noteModalDate"
       @checked="emit('checked')"
     />
   </UCard>

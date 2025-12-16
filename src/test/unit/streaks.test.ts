@@ -245,7 +245,7 @@ describe('calculateCurrentStreak', () => {
   })
 
   describe('skipped checkins', () => {
-    it('skipped counts as completed when skippedBreaksStreak=false', () => {
+    it('skipped preserves but does not count toward streak when skippedBreaksStreak=false', () => {
       const habit = createHabitConfig()
       const checkins = [
         { date: '2025-12-31', skipped: true, value: null },
@@ -254,7 +254,9 @@ describe('calculateCurrentStreak', () => {
       ]
 
       const result = calculateCurrentStreak(checkins, habit, false)
-      expect(result).toBe(3)
+      // Skip does NOT count toward streak, but also doesn't break it
+      // So streak = 2 (Dec 30 + Dec 29), not 3
+      expect(result).toBe(2)
     })
 
     it('skipped breaks streak when skippedBreaksStreak=true', () => {

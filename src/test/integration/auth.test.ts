@@ -52,6 +52,52 @@ describe('Auth Integration', () => {
         weekStartsOn: 0
       })
     })
+
+    it('stores enableNotes setting', async () => {
+      const [user] = await db.insert(schema.users).values({
+        username: 'notesuser',
+        passwordHash: 'hash',
+        settings: {
+          enableNotes: true
+        }
+      }).returning()
+
+      const found = await db.query.users.findFirst({
+        where: eq(schema.users.id, user.id)
+      })
+
+      expect(found?.settings).toEqual({
+        enableNotes: true
+      })
+    })
+
+    it('updates enableNotes setting', async () => {
+      const [user] = await db.insert(schema.users).values({
+        username: 'notesuser2',
+        passwordHash: 'hash',
+        settings: {
+          enableNotes: false
+        }
+      }).returning()
+
+      await db.update(schema.users)
+        .set({
+          settings: {
+            enableNotes: true,
+            allowBackfill: true
+          }
+        })
+        .where(eq(schema.users.id, user.id))
+
+      const updated = await db.query.users.findFirst({
+        where: eq(schema.users.id, user.id)
+      })
+
+      expect(updated?.settings).toEqual({
+        enableNotes: true,
+        allowBackfill: true
+      })
+    })
   })
 
   describe('API Key Authentication', () => {

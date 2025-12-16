@@ -58,7 +58,8 @@
     "activeDays": "Active days",
     "timesPerWeek": "Times per week",
     "habitType": "Type",
-    "habitTypeSimple": "Simple check",
+    "habitTypeSimple": "Simple",
+    "habitTypeWithNote": "With note",
     "habitTypeTarget": "Target value",
     "targetValue": "Target",
     "defaultIncrement": "Default increment",
@@ -78,7 +79,16 @@
       "sat": "Sat",
       "sun": "Sun"
     },
-    "noHabitsInCategory": "No habits in this category"
+    "noHabitsInCategory": "No habits in this category",
+    "promptForNotes": "Prompt for note",
+    "promptForNotesDescription": "Opens a dialog to add a note when checking this habit"
+  },
+  "checkin": {
+    "addNote": "Add note",
+    "notePlaceholder": "What's on your mind?",
+    "checkWithNote": "Check with note",
+    "checkWithoutNote": "Check without note",
+    "note": "Note"
   },
   "categories": {
     "title": "Categories",
@@ -103,7 +113,11 @@
     "settings": "Settings",
     "language": "Language",
     "error": "Error",
-    "never": "Never"
+    "never": "Never",
+    "undo": "Undo",
+    "skipToContent": "Skip to content",
+    "toggleColorMode": "Toggle color mode",
+    "userMenu": "User menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -114,6 +128,7 @@
   "settings": {
     "general": "General",
     "display": "Display",
+    "data": "Data",
     "security": "Security",
     "groupByCategory": "Group by category",
     "groupByCategoryDescription": "Group habits by their category on the dashboard",
@@ -124,7 +139,13 @@
     "desktopDaysToShow": "Days to display",
     "desktopDaysToShowDescription": "Number of days shown in the desktop week view",
     "weekStartsOn": "Week starts on",
-    "weekStartsOnDescription": "First day of the week for visual separators"
+    "weekStartsOnDescription": "First day of the week for visual separators",
+    "enableNotes": "Enable notes",
+    "enableNotesDescription": "Allow adding notes when checking habits",
+    "exportData": "Export data",
+    "exportDataDescription": "Download all your habits and check-ins",
+    "exportJson": "Export JSON",
+    "exportCsv": "Export CSV"
   },
   "stats": {
     "currentStreak": "Current streak",
@@ -158,5 +179,11 @@
     "lastUsed": "Last used",
     "deleteSuccess": "API key deleted",
     "deleteError": "Failed to delete API key"
+  },
+  "pwa": {
+    "installTitle": "Install HabitWire",
+    "installDescription": "Add to your home screen for quick access",
+    "install": "Install",
+    "later": "Later"
   }
 }

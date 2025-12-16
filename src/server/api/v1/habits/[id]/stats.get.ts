@@ -42,7 +42,8 @@ export default defineEventHandler(async (event) => {
   const allCheckins = await db.select({
     date: checkins.date,
     skipped: checkins.skipped,
-    value: checkins.value
+    value: checkins.value,
+    notes: checkins.notes
   })
     .from(checkins)
     .where(eq(checkins.habitId, id))
@@ -56,6 +57,7 @@ export default defineEventHandler(async (event) => {
     })),
     {
       frequencyType: habit.frequencyType,
+      frequencyValue: habit.frequencyValue,
       activeDays: habit.activeDays as number[] | null,
       habitType: habit.habitType,
       targetValue: habit.targetValue,
@@ -74,7 +76,8 @@ export default defineEventHandler(async (event) => {
     checkins: allCheckins.map(c => ({
       date: c.date,
       value: c.value,
-      skipped: c.skipped ?? false
+      skipped: c.skipped ?? false,
+      notes: c.notes
     }))
   }
 })

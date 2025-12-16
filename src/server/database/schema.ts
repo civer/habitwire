@@ -48,6 +48,7 @@ export const habits = pgTable('habits', {
   icon: text('icon'),
   sortOrder: integer('sort_order').default(0),
   archived: boolean('archived').default(false),
+  promptForNotes: boolean('prompt_for_notes').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 }, table => [

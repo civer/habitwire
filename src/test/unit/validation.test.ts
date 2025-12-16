@@ -96,6 +96,32 @@ describe('validation.ts', () => {
       })
       expect(result.success).toBe(false)
     })
+
+    it('accepts enableNotes setting', () => {
+      const result = settingsSchema.safeParse({
+        enableNotes: true
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts all settings including enableNotes', () => {
+      const result = settingsSchema.safeParse({
+        allowBackfill: true,
+        groupByCategory: true,
+        skippedBreaksStreak: false,
+        desktopDaysToShow: 14,
+        weekStartsOn: 'monday',
+        enableNotes: true
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects invalid enableNotes type', () => {
+      const result = settingsSchema.safeParse({
+        enableNotes: 'yes'
+      })
+      expect(result.success).toBe(false)
+    })
   })
 
   // ============================================================
@@ -270,6 +296,44 @@ describe('validation.ts', () => {
       })
       expect(result.success).toBe(true)
     })
+
+    // prompt_for_notes validation
+    it('accepts SIMPLE habit with prompt_for_notes true', () => {
+      const result = createHabitSchema.safeParse({
+        title: 'Journal',
+        frequency_type: 'DAILY',
+        habit_type: 'SIMPLE',
+        prompt_for_notes: true
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts SIMPLE habit with prompt_for_notes false', () => {
+      const result = createHabitSchema.safeParse({
+        title: 'Exercise',
+        frequency_type: 'DAILY',
+        habit_type: 'SIMPLE',
+        prompt_for_notes: false
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts habit without prompt_for_notes (optional)', () => {
+      const result = createHabitSchema.safeParse({
+        title: 'Read',
+        frequency_type: 'DAILY'
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects invalid prompt_for_notes type', () => {
+      const result = createHabitSchema.safeParse({
+        title: 'Test',
+        frequency_type: 'DAILY',
+        prompt_for_notes: 'yes'
+      })
+      expect(result.success).toBe(false)
+    })
   })
 
   describe('updateHabitSchema', () => {
@@ -298,6 +362,28 @@ describe('validation.ts', () => {
     it('accepts archived field', () => {
       const result = updateHabitSchema.safeParse({
         archived: true
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts prompt_for_notes update', () => {
+      const result = updateHabitSchema.safeParse({
+        prompt_for_notes: true
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts updating prompt_for_notes to false', () => {
+      const result = updateHabitSchema.safeParse({
+        prompt_for_notes: false
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts combined update with prompt_for_notes', () => {
+      const result = updateHabitSchema.safeParse({
+        title: 'Updated title',
+        prompt_for_notes: true
       })
       expect(result.success).toBe(true)
     })

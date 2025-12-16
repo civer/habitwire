@@ -43,15 +43,25 @@ const userMenuItems = computed(() => [
 
 <template>
   <UApp>
+    <!-- Skip link for keyboard navigation -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg"
+    >
+      {{ $t('common.skipToContent') }}
+    </a>
+
     <UHeader :toggle="false">
       <template #left>
         <NuxtLink
           to="/"
           class="flex items-center gap-2"
+          :aria-label="$t('app.name')"
         >
           <UIcon
             name="i-lucide-target"
             class="w-6 h-6 text-primary"
+            aria-hidden="true"
           />
           <span class="font-bold text-lg">{{ $t('app.name') }}</span>
           <span class="text-xs text-gray-400 dark:text-gray-500">v{{ runtimeConfig.public.version }}</span>
@@ -60,13 +70,14 @@ const userMenuItems = computed(() => [
 
       <template #right>
         <LanguageSwitcher />
-        <UColorModeButton />
+        <UColorModeButton :aria-label="$t('common.toggleColorMode')" />
 
         <UDropdownMenu :items="userMenuItems">
           <UButton
             color="neutral"
             variant="ghost"
             icon="i-lucide-user"
+            :aria-label="$t('common.userMenu')"
           />
         </UDropdownMenu>
       </template>
@@ -74,8 +85,16 @@ const userMenuItems = computed(() => [
 
     <UMain>
       <UContainer>
-        <slot />
+        <main
+          id="main-content"
+          tabindex="-1"
+        >
+          <slot />
+        </main>
       </UContainer>
     </UMain>
+
+    <!-- PWA Install Prompt -->
+    <PwaInstallPrompt />
   </UApp>
 </template>

@@ -18,6 +18,7 @@ const allowBackfill = computed(() => userData.value?.user?.settings?.allowBackfi
 const groupByCategory = computed(() => userData.value?.user?.settings?.groupByCategory ?? true)
 const desktopDaysToShow = computed(() => userData.value?.user?.settings?.desktopDaysToShow ?? 14)
 const weekStartsOn = computed(() => userData.value?.user?.settings?.weekStartsOn ?? 'monday')
+const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?? false)
 
 const selectedCategory = ref<string | null>(null)
 const collapsedCategories = ref<Set<string | null>>(new Set())
@@ -215,6 +216,7 @@ const showCategoryHeaders = computed(() => {
             :allow-backfill="allowBackfill"
             :days-to-show="desktopDaysToShow"
             :week-starts-on="weekStartsOn"
+            :enable-notes="enableNotes"
             @checked="refreshAllHabits"
           />
         </div>
@@ -242,6 +244,7 @@ const showCategoryHeaders = computed(() => {
         :allow-backfill="allowBackfill"
         :days-to-show="desktopDaysToShow"
         :week-starts-on="weekStartsOn"
+        :enable-notes="enableNotes"
         @checked="refreshAllHabits"
       />
     </div>
