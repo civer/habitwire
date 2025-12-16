@@ -4,24 +4,44 @@ Thank you for your interest in contributing to HabitWire! This document explains
 
 ## Branch Strategy
 
-```
-main                    Production (protected)
-└── X.Y.Z               Version branch (e.g., 0.9.3)
-    ├── feat/*          New features
-    ├── fix/*           Bug fixes
-    └── ci/*            CI/tooling changes
-```
+### Protected Branches
+| Branch | Protection | Requirements |
+|--------|------------|--------------|
+| `main` | Branch Protection | PR + CI passed |
+| `X.Y.Z` | Ruleset | PR + CI passed |
+
+**Note:** There should always be an active version branch for the next release (e.g., `0.9.6` when `0.9.5` is current).
+
+### Branch Types (unprotected)
+| Prefix | Usage | Example |
+|--------|-------|---------|
+| `feat/*` | New features | `feat/dark-mode` |
+| `fix/*` | Bug fixes | `fix/login-error` |
+| `hotfix/*` | Urgent production fixes | `hotfix/security-patch` |
+| `docs/*` | Documentation | `docs/api-guide` |
+| `chore/*` | Maintenance, dependencies | `chore/update-deps` |
+| `refactor/*` | Code refactoring | `refactor/auth-module` |
+| `ci/*` | CI/CD changes | `ci/add-coverage` |
+| `test/*` | Test changes | `test/add-e2e` |
 
 ### Recommended Workflow
 
 The general idea is to collect changes in version branches before releasing to main:
+
+```
+main ← X.Y.Z ← feat/my-feature
+```
 
 1. **Fork the repository** (for external contributors)
 2. **Create a feature branch** based on the current version branch
 3. **Open a Pull Request** to the version branch
 4. **Maintainers review and merge** when CI passes
 
-For urgent fixes, hotfix branches can go directly to main - but this should be rare.
+For urgent fixes, branches can go directly to main:
+
+```
+main ← fix/critical-bug
+```
 
 ## Getting Started
 
