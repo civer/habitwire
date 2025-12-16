@@ -113,7 +113,8 @@
     "settings": "Settings",
     "language": "Language",
     "error": "Error",
-    "never": "Never"
+    "never": "Never",
+    "undo": "Undo"
   },
   "dashboard": {
     "title": "Dashboard",
