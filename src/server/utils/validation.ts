@@ -43,8 +43,8 @@ export const passwordChangeSchema = z.object({
   new_password: z.string().min(8, 'New password must be at least 8 characters')
 })
 
-// Week start day enum
-export const weekStartsOnEnum = z.enum(['monday', 'sunday'])
+// Week start day enum (internal)
+const weekStartsOnEnum = z.enum(['monday', 'sunday'])
 
 // Settings whitelist - only these fields are allowed
 export const settingsSchema = z.object({
@@ -60,8 +60,8 @@ export const settingsSchema = z.object({
 // Habit Schemas
 // ============================================================
 
-export const habitTypeEnum = z.enum(['SIMPLE', 'TARGET'])
-export const frequencyTypeEnum = z.enum(['DAILY', 'WEEKLY', 'CUSTOM'])
+const habitTypeEnum = z.enum(['SIMPLE', 'TARGET'])
+const frequencyTypeEnum = z.enum(['DAILY', 'WEEKLY', 'CUSTOM'])
 
 // Base habit schema without refinement
 const baseHabitSchema = z.object({
