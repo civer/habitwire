@@ -55,9 +55,11 @@
     "frequency": "Häufigkeit",
     "frequencyDaily": "Täglich",
     "frequencyWeekly": "Wöchentlich",
-    "frequencyCustom": "Benutzerdefiniert",
+    "frequencyCustom": "Frequenz",
     "activeDays": "Aktive Tage",
-    "timesPerWeek": "Mal pro Woche",
+    "timesPerPeriod": "Mal pro",
+    "periodWeek": "Woche",
+    "periodMonth": "Monat",
     "habitType": "Art",
     "habitTypeSimple": "Einfach",
     "habitTypeWithNote": "Mit Notiz",
@@ -80,6 +82,8 @@
       "sun": "So"
     },
     "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie",
+    "search": "Suchen",
+    "noSearchResults": "Keine Gewohnheiten gefunden",
     "promptForNotes": "Nach Notiz fragen",
     "promptForNotesDescription": "Öffnet einen Dialog zum Hinzufügen einer Notiz beim Abhaken"
   },

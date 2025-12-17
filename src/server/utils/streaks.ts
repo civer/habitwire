@@ -1,4 +1,4 @@
-import { formatDateLocal } from './date'
+import { formatDateLocal, parseLocalDate } from './date'
 
 /**
  * Safely parse a string to number, returning 0 for invalid values
@@ -17,7 +17,8 @@ export interface Checkin {
 
 export interface HabitConfig {
   frequencyType: string
-  frequencyValue: number | null // For CUSTOM: times per week needed
+  frequencyValue: number | null // For CUSTOM: times per period needed
+  frequencyPeriod: string | null // 'week' or 'month' (for CUSTOM type)
   activeDays: number[] | null
   habitType: string
   targetValue: number | null
@@ -64,6 +65,16 @@ function isSkipPreservingStreak(
 ): boolean {
   if (!checkin) return false
   return checkin.skipped && !skippedBreaksStreak
+}
+
+/**
+ * Get the start of the month for a given date
+ */
+function getMonthStart(date: Date): Date {
+  const d = new Date(date)
+  d.setHours(12, 0, 0, 0)
+  d.setDate(1)
+  return d
 }
 
 /**
@@ -146,6 +157,58 @@ function getCustomWeekStatus(
 
   if (todayStr < weekEndStr) {
     // Still have days left this week - grace period
+    return 'grace'
+  }
+
+  return 'incomplete'
+}
+
+/**
+ * Get month status for CUSTOM habits (X times per month, any day)
+ */
+function getCustomMonthStatus(
+  monthStart: Date,
+  frequencyValue: number,
+  checkinMap: Map<string, { skipped: boolean, value: number | null }>,
+  today: Date,
+  habitType: string,
+  targetValue: number | null
+): WeekStatus {
+  const todayStr = formatDateLocal(today)
+  let completedCount = 0
+
+  // Get the last day of this month
+  const monthEnd = new Date(monthStart)
+  monthEnd.setMonth(monthEnd.getMonth() + 1)
+  monthEnd.setDate(0) // Last day of the month
+  const daysInMonth = monthEnd.getDate()
+
+  // Check all days of the month
+  for (let i = 0; i < daysInMonth; i++) {
+    const d = new Date(monthStart)
+    d.setDate(d.getDate() + i)
+    d.setHours(12, 0, 0, 0)
+    const dayStr = formatDateLocal(d)
+
+    // Skip future days
+    if (dayStr > todayStr) continue
+
+    const checkin = checkinMap.get(dayStr)
+    if (isActuallyCompleted(checkin, habitType, targetValue)) {
+      completedCount++
+    }
+  }
+
+  // Check if we've met the required frequency
+  if (completedCount >= frequencyValue) {
+    return 'completed'
+  }
+
+  // Check if there are still future days in this month (grace period)
+  const monthEndStr = formatDateLocal(monthEnd)
+
+  if (todayStr < monthEndStr) {
+    // Still have days left this month - grace period
     return 'grace'
   }
 
@@ -247,7 +310,7 @@ function calculateDailyStreak(
 }
 
 /**
- * Calculate current streak for WEEKLY/CUSTOM habits (counts weeks)
+ * Calculate current streak for WEEKLY/CUSTOM habits (counts weeks or months)
  */
 function calculateWeeklyStreak(
   checkinMap: Map<string, { skipped: boolean, value: number | null }>,
@@ -258,6 +321,7 @@ function calculateWeeklyStreak(
   const weekStartsOn = habit.weekStartsOn ?? 1
   const isCustom = habit.frequencyType === 'CUSTOM'
   const frequencyValue = habit.frequencyValue ?? 1
+  const isMonthly = isCustom && habit.frequencyPeriod === 'month'
 
   // For WEEKLY, we need activeDays
   if (!isCustom) {
@@ -268,6 +332,37 @@ function calculateWeeklyStreak(
   }
 
   let currentStreak = 0
+
+  // Monthly CUSTOM: iterate months
+  if (isMonthly) {
+    const currentMonthStart = getMonthStart(today)
+
+    for (let monthOffset = 0; monthOffset < 12; monthOffset++) {
+      const monthStart = new Date(currentMonthStart)
+      monthStart.setMonth(monthStart.getMonth() - monthOffset)
+
+      const status = getCustomMonthStatus(
+        monthStart,
+        frequencyValue,
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue
+      )
+
+      if (status === 'completed') {
+        currentStreak++
+      } else if (status === 'grace') {
+        continue
+      } else {
+        break
+      }
+    }
+
+    return currentStreak
+  }
+
+  // Weekly: iterate weeks
   const currentWeekStart = getWeekStart(today, weekStartsOn)
 
   // Check up to 52 weeks back
@@ -315,15 +410,17 @@ function calculateWeeklyStreak(
 
 /**
  * Calculate current streak for a habit (used in dashboard list)
+ * @param todayStr - Optional "today" date string (YYYY-MM-DD) from client for timezone handling
  */
 export function calculateCurrentStreak(
   allCheckins: Checkin[],
   habit: HabitConfig,
-  skippedBreaksStreak: boolean
+  skippedBreaksStreak: boolean,
+  todayStr?: string
 ): number {
   if (allCheckins.length === 0) return 0
 
-  const today = new Date()
+  const today = todayStr ? parseLocalDate(todayStr) : new Date()
   today.setHours(12, 0, 0, 0)
 
   // Build a map of checkins by date
@@ -343,13 +440,15 @@ export function calculateCurrentStreak(
 
 /**
  * Calculate full streak statistics for a habit (used in habit detail/stats page)
+ * @param clientTodayStr - Optional "today" date string (YYYY-MM-DD) from client for timezone handling
  */
 export function calculateStreakStats(
   allCheckins: Checkin[],
   habit: HabitConfig,
-  skippedBreaksStreak: boolean
+  skippedBreaksStreak: boolean,
+  clientTodayStr?: string
 ): StreakResult {
-  const today = new Date()
+  const today = clientTodayStr ? parseLocalDate(clientTodayStr) : new Date()
   today.setHours(12, 0, 0, 0)
   const todayStr = formatDateLocal(today)
 
@@ -475,7 +574,7 @@ function calculateDailyStreakStats(
 }
 
 /**
- * Calculate streak stats for WEEKLY/CUSTOM habits (week-based)
+ * Calculate streak stats for WEEKLY/CUSTOM habits (week or month based)
  */
 function calculateWeeklyStreakStats(
   checkinMap: Map<string, { skipped: boolean, value: number | null }>,
@@ -489,6 +588,7 @@ function calculateWeeklyStreakStats(
   const frequencyValue = habit.frequencyValue ?? 1
   const activeDays = habit.activeDays || []
   const todayStr = formatDateLocal(today)
+  const isMonthly = isCustom && habit.frequencyPeriod === 'month'
 
   // For WEEKLY, we need activeDays
   if (!isCustom && activeDays.length === 0) {
@@ -508,9 +608,70 @@ function calculateWeeklyStreakStats(
   let totalExpectedDays = 0
   let foundFirstMiss = false
 
-  const currentWeekStart = getWeekStart(today, weekStartsOn)
+  // Monthly CUSTOM: iterate months
+  if (isMonthly) {
+    const currentMonthStart = getMonthStart(today)
+    const maxMonths = earliestDate
+      ? Math.min(12, Math.ceil((today.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24 * 30)) + 1)
+      : 12
 
-  // Calculate how many weeks to check
+    for (let monthOffset = 0; monthOffset < maxMonths; monthOffset++) {
+      const monthStart = new Date(currentMonthStart)
+      monthStart.setMonth(monthStart.getMonth() - monthOffset)
+
+      // Get days in this month
+      const monthEnd = new Date(monthStart)
+      monthEnd.setMonth(monthEnd.getMonth() + 1)
+      monthEnd.setDate(0)
+      const daysInMonth = monthEnd.getDate()
+
+      // Count completions for this month
+      for (let i = 0; i < daysInMonth; i++) {
+        const d = new Date(monthStart)
+        d.setDate(d.getDate() + i)
+        d.setHours(12, 0, 0, 0)
+        const dayStr = formatDateLocal(d)
+
+        if (dayStr > todayStr) continue
+        if (earliestDate && d < earliestDate) continue
+
+        const checkin = checkinMap.get(dayStr)
+        if (isActuallyCompleted(checkin, habit.habitType, habit.targetValue)) {
+          totalCheckins++
+        }
+      }
+      totalExpectedDays += frequencyValue
+
+      const status = getCustomMonthStatus(
+        monthStart,
+        frequencyValue,
+        checkinMap,
+        today,
+        habit.habitType,
+        habit.targetValue
+      )
+
+      if (status === 'completed') {
+        tempStreak++
+        if (!foundFirstMiss) currentStreak = tempStreak
+        if (tempStreak > longestStreak) longestStreak = tempStreak
+      } else if (status === 'grace') {
+        // Continue
+      } else {
+        foundFirstMiss = true
+        tempStreak = 0
+      }
+    }
+
+    const completionRate = totalExpectedDays > 0
+      ? Math.round((totalCheckins / totalExpectedDays) * 100)
+      : 0
+
+    return { currentStreak, longestStreak, completionRate, totalCheckins, totalExpectedDays }
+  }
+
+  // Weekly logic (original)
+  const currentWeekStart = getWeekStart(today, weekStartsOn)
   const maxWeeks = earliestDate
     ? Math.min(52, Math.ceil((today.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24 * 7)) + 1)
     : 52
@@ -521,7 +682,6 @@ function calculateWeeklyStreakStats(
 
     // Count completions for this week
     if (isCustom) {
-      // CUSTOM: count all days, expected = frequencyValue per week
       for (let i = 0; i < 7; i++) {
         const d = new Date(weekStart)
         d.setDate(d.getDate() + i)
@@ -536,10 +696,8 @@ function calculateWeeklyStreakStats(
           totalCheckins++
         }
       }
-      // For CUSTOM, expected is frequencyValue per week (count weeks, not days)
       totalExpectedDays += frequencyValue
     } else {
-      // WEEKLY: count only active days
       const activeDaysInWeek = getActiveDaysInWeek(weekStart, activeDays)
       for (const day of activeDaysInWeek) {
         const dayStr = formatDateLocal(day)
@@ -554,45 +712,20 @@ function calculateWeeklyStreakStats(
       }
     }
 
-    // Check week status for streak calculation
     let status: WeekStatus
-
     if (isCustom) {
-      status = getCustomWeekStatus(
-        weekStart,
-        frequencyValue,
-        checkinMap,
-        today,
-        habit.habitType,
-        habit.targetValue
-      )
+      status = getCustomWeekStatus(weekStart, frequencyValue, checkinMap, today, habit.habitType, habit.targetValue)
     } else {
-      status = getWeekStatus(
-        weekStart,
-        activeDays,
-        checkinMap,
-        today,
-        habit.habitType,
-        habit.targetValue,
-        skippedBreaksStreak
-      )
+      status = getWeekStatus(weekStart, activeDays, checkinMap, today, habit.habitType, habit.targetValue, skippedBreaksStreak)
     }
 
     if (status === 'completed') {
       tempStreak++
-
-      if (!foundFirstMiss) {
-        currentStreak = tempStreak
-      }
-
-      if (tempStreak > longestStreak) {
-        longestStreak = tempStreak
-      }
+      if (!foundFirstMiss) currentStreak = tempStreak
+      if (tempStreak > longestStreak) longestStreak = tempStreak
     } else if (status === 'grace') {
-      // Grace: week not finished yet, but on track - don't break, don't count
-      // Continue to previous weeks
+      // Continue
     } else {
-      // Week incomplete
       foundFirstMiss = true
       tempStreak = 0
     }
@@ -602,11 +735,5 @@ function calculateWeeklyStreakStats(
     ? Math.round((totalCheckins / totalExpectedDays) * 100)
     : 0
 
-  return {
-    currentStreak,
-    longestStreak,
-    completionRate,
-    totalCheckins,
-    totalExpectedDays
-  }
+  return { currentStreak, longestStreak, completionRate, totalCheckins, totalExpectedDays }
 }

@@ -57,7 +57,9 @@
     "frequencyWeekly": "Weekly",
     "frequencyCustom": "Custom",
     "activeDays": "Active days",
-    "timesPerWeek": "Times per week",
+    "timesPerPeriod": "Times per",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
     "habitType": "Type",
     "habitTypeSimple": "Simple",
     "habitTypeWithNote": "With note",
@@ -80,6 +82,8 @@
       "sun": "Sun"
     },
     "noHabitsInCategory": "No habits in this category",
+    "search": "Search",
+    "noSearchResults": "No habits found",
     "promptForNotes": "Prompt for note",
     "promptForNotesDescription": "Opens a dialog to add a note when checking this habit"
   },

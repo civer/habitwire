@@ -62,6 +62,7 @@ export const settingsSchema = z.object({
 
 const habitTypeEnum = z.enum(['SIMPLE', 'TARGET'])
 const frequencyTypeEnum = z.enum(['DAILY', 'WEEKLY', 'CUSTOM'])
+const frequencyPeriodEnum = z.enum(['week', 'month'])
 
 // Base habit schema without refinement
 const baseHabitSchema = z.object({
@@ -70,6 +71,7 @@ const baseHabitSchema = z.object({
   habit_type: habitTypeEnum.default('SIMPLE'),
   frequency_type: frequencyTypeEnum,
   frequency_value: z.number().int().positive().default(1),
+  frequency_period: frequencyPeriodEnum.default('week'),
   active_days: activeDaysSchema,
   time_of_day: z.string().nullable().optional(),
   target_value: z.number().int().nullable().optional(),
@@ -104,6 +106,7 @@ const baseUpdateHabitSchema = z.object({
   habit_type: habitTypeEnum.optional(),
   frequency_type: frequencyTypeEnum.optional(),
   frequency_value: z.number().int().positive().optional(),
+  frequency_period: frequencyPeriodEnum.optional(),
   active_days: activeDaysSchema,
   time_of_day: z.string().nullable().optional(),
   target_value: z.number().int().nullable().optional(),
@@ -217,7 +220,12 @@ export const checkinsQuerySchema = z.object({
 })
 
 export const habitsQuerySchema = z.object({
-  category: z.string().uuid('Invalid category ID').optional()
+  category: z.string().uuid('Invalid category ID').optional(),
+  today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional()
+})
+
+export const statsQuerySchema = z.object({
+  today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional()
 })
 
 // ============================================================

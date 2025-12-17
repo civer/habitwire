@@ -32,7 +32,8 @@ const {
   isTodayActiveDay,
   progress,
   frequencyValue,
-  weeklyCompletedCount,
+  frequencyPeriod,
+  periodCompletedCount,
   getDayStatus,
   getDayProgress,
   getDayTooltip,
@@ -342,13 +343,13 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
             >
               {{ currentValue }}/{{ targetValue }} {{ habit.unit || '' }}
             </span>
-            <!-- Custom frequency progress (X/week) -->
+            <!-- Custom frequency progress (X/week or X/month) -->
             <span
               v-if="isCustom"
               class="flex-shrink-0 text-xs font-medium whitespace-nowrap"
-              :class="weeklyCompletedCount >= frequencyValue ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'"
+              :class="periodCompletedCount >= frequencyValue ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'"
             >
-              {{ weeklyCompletedCount }}/{{ frequencyValue }}×
+              {{ periodCompletedCount }}/{{ frequencyValue }}×{{ frequencyPeriod === 'month' ? $t('habits.periodMonth').charAt(0).toLowerCase() : $t('habits.periodWeek').charAt(0).toLowerCase() }}
             </span>
             <!-- Streak badge -->
             <span

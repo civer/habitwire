@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type { HabitResponse, HabitStatsResponse, CheckinResponse } from '~/types/api'
+import { formatDateString, parseLocalDate } from '~/utils/date'
 
 const { t } = useI18n()
 const route = useRoute()
 
 const habitId = route.params.id as string
 
+// Get client's local "today" for timezone-aware streak calculation
+const clientToday = formatDateString(new Date())
+
 const { data: habit, error: habitError } = await useFetch<HabitResponse>(`/api/v1/habits/${habitId}`)
-const { data: stats } = await useFetch<HabitStatsResponse>(`/api/v1/habits/${habitId}/stats`)
+const { data: stats } = await useFetch<HabitStatsResponse>(`/api/v1/habits/${habitId}/stats`, {
+  query: { today: clientToday }
+})
 const { data: checkins } = await useFetch<CheckinResponse[]>(`/api/v1/habits/${habitId}/checkins`, {
   query: { limit: 30 }
 })
@@ -29,7 +35,7 @@ const sortedCheckins = computed(() => {
 })
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
+  const date = parseLocalDate(dateStr)
   return date.toLocaleDateString(undefined, {
     weekday: 'short',
     day: 'numeric',

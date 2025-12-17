@@ -15,6 +15,7 @@ export function mapHabitToResponse(habit: Habit) {
     habit_type: habit.habitType,
     frequency_type: habit.frequencyType,
     frequency_value: habit.frequencyValue,
+    frequency_period: habit.frequencyPeriod,
     active_days: habit.activeDays,
     time_of_day: habit.timeOfDay,
     target_value: habit.targetValue,

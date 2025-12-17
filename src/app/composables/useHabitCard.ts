@@ -1,5 +1,5 @@
 import type { HabitWithCheckinsResponse, RecentCheckin } from '~/types/api'
-import { formatDateString } from '~/utils/date'
+import { formatDateString, parseLocalDate } from '~/utils/date'
 import { useDisplayDays, type DisplayDay } from './useDisplayDays'
 
 export interface UseHabitCardOptions {
@@ -29,10 +29,12 @@ export function useHabitCard(options: UseHabitCardOptions) {
   const isCustom = computed(() => habit.value.frequency_type === 'CUSTOM')
   const activeDays = computed(() => habit.value.active_days || [])
   const frequencyValue = computed(() => habit.value.frequency_value || 1)
+  const frequencyPeriod = computed(() => habit.value.frequency_period || 'week')
+  const isMonthlyCustom = computed(() => isCustom.value && frequencyPeriod.value === 'month')
 
   function isActiveDay(date: string): boolean {
     if (!isWeekly.value) return true
-    const d = new Date(date)
+    const d = parseLocalDate(date)
     const dayOfWeek = d.getDay()
     return activeDays.value.includes(dayOfWeek)
   }
@@ -118,29 +120,49 @@ export function useHabitCard(options: UseHabitCardOptions) {
     return statusText
   }
 
-  // Weekly completed count for CUSTOM frequency
-  const weeklyCompletedCount = computed(() => {
+  // Period completed count for CUSTOM frequency (week or month)
+  const periodCompletedCount = computed(() => {
     if (!isCustom.value) return 0
 
     const now = new Date()
-    const dayOfWeek = now.getDay()
+    let periodStartStr: string
 
-    let daysSinceWeekStart: number
-    if (weekStart.value === 'monday') {
-      daysSinceWeekStart = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    if (frequencyPeriod.value === 'month') {
+      // Month start
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      periodStartStr = formatDateString(monthStart)
     } else {
-      daysSinceWeekStart = dayOfWeek
+      // Week start
+      const dayOfWeek = now.getDay()
+      let daysSinceWeekStart: number
+      if (weekStart.value === 'monday') {
+        daysSinceWeekStart = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+      } else {
+        daysSinceWeekStart = dayOfWeek
+      }
+      const currentWeekStart = new Date(now)
+      currentWeekStart.setDate(now.getDate() - daysSinceWeekStart)
+      periodStartStr = formatDateString(currentWeekStart)
     }
 
-    const currentWeekStart = new Date(now)
-    currentWeekStart.setDate(now.getDate() - daysSinceWeekStart)
-    const weekStartStr = formatDateString(currentWeekStart)
-
     let count = 0
-    for (const day of displayDays.value) {
-      if (day.date >= weekStartStr && day.date <= today) {
-        const status = getDayStatus(day.date)
-        if (status === 'completed') count++
+    // For monthly, we need to check all checkins, not just displayDays
+    if (frequencyPeriod.value === 'month') {
+      for (const [date, checkin] of checkinsByDate.value.entries()) {
+        if (date >= periodStartStr && date <= today && !checkin.skipped) {
+          if (isTargetHabit.value && targetValue.value) {
+            if ((checkin.value ?? 0) >= targetValue.value) count++
+          } else {
+            count++
+          }
+        }
+      }
+    } else {
+      for (const day of displayDays.value) {
+        if (day.date >= periodStartStr && day.date <= today) {
+          const status = getDayStatus(day.date)
+          if (status === 'completed') count++
+        }
       }
     }
     return count
@@ -168,6 +190,8 @@ export function useHabitCard(options: UseHabitCardOptions) {
     isCustom,
     activeDays,
     frequencyValue,
+    frequencyPeriod,
+    isMonthlyCustom,
     isActiveDay,
 
     // Checkins
@@ -187,7 +211,7 @@ export function useHabitCard(options: UseHabitCardOptions) {
     getDayTooltip,
 
     // Custom frequency
-    weeklyCompletedCount,
+    periodCompletedCount,
 
     // Helpers
     getCheckinValue

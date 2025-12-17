@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getErrorMessage } from '~/types/error'
 import type { HabitWithCheckinsResponse, HabitResponse, CategoryResponse, UserResponse } from '~/types/api'
+import { formatDateString } from '~/utils/date'
 
 // Dynamic import to avoid SSR issues with vuedraggable
 const draggable = defineAsyncComponent(() => import('vuedraggable'))
@@ -8,7 +9,12 @@ const draggable = defineAsyncComponent(() => import('vuedraggable'))
 const { t } = useI18n()
 const toast = useToast()
 
-const { data: habits, refresh: refreshHabits } = await useFetch<HabitWithCheckinsResponse[]>('/api/v1/habits')
+// Get client's local "today" for timezone-aware streak calculation
+const clientToday = formatDateString(new Date())
+
+const { data: habits, refresh: refreshHabits } = await useFetch<HabitWithCheckinsResponse[]>('/api/v1/habits', {
+  query: { today: clientToday }
+})
 const { data: archivedHabits, refresh: refreshArchivedHabits } = await useFetch<HabitResponse[]>('/api/v1/habits/archived')
 
 async function refreshAllHabits() {
@@ -27,6 +33,48 @@ const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?
 
 const selectedCategory = ref<string | null>(null)
 const collapsedCategories = ref<Set<string | null>>(new Set())
+const searchQuery = ref('')
+const isSearchOpen = ref(false)
+const searchInputRef = ref<{ $el?: HTMLElement } | null>(null)
+
+function toggleSearch() {
+  isSearchOpen.value = !isSearchOpen.value
+  if (isSearchOpen.value) {
+    nextTick(() => {
+      const input = searchInputRef.value?.$el?.querySelector('input')
+      input?.focus()
+    })
+  } else {
+    searchQuery.value = ''
+  }
+}
+
+// Global keyboard shortcuts
+function handleGlobalKeydown(event: KeyboardEvent) {
+  // Cmd/Ctrl+K to open search
+  if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+    event.preventDefault()
+    if (!isSearchOpen.value && habits.value?.length && !isReorderMode.value) {
+      toggleSearch()
+    }
+  }
+  // Escape to close search or exit reorder mode
+  if (event.key === 'Escape') {
+    if (isSearchOpen.value) {
+      toggleSearch()
+    } else if (isReorderMode.value) {
+      isReorderMode.value = false
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown)
+})
 
 // Reorder mode toggle
 const isReorderMode = ref(false)
@@ -68,11 +116,26 @@ function isCategoryCollapsed(categoryId: string | null): boolean {
 
 const filteredHabits = computed(() => {
   if (!localHabits.value.length) return []
-  if (!selectedCategory.value) return localHabits.value
+
+  let result = localHabits.value
+
+  // Filter by category
   if (selectedCategory.value === 'uncategorized') {
-    return localHabits.value.filter(h => !h.category_id)
+    result = result.filter(h => !h.category_id)
+  } else if (selectedCategory.value) {
+    result = result.filter(h => h.category_id === selectedCategory.value)
   }
-  return localHabits.value.filter(h => h.category_id === selectedCategory.value)
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    result = result.filter(h =>
+      h.title.toLowerCase().includes(query)
+      || h.description?.toLowerCase().includes(query)
+    )
+  }
+
+  return result
 })
 
 // Mutable filtered list for flat mode drag & drop
@@ -164,13 +227,38 @@ const showCategoryHeaders = computed(() => {
 
 <template>
   <div class="py-6 space-y-6">
-    <div class="flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
       <h1 class="text-2xl font-bold">
         {{ $t('dashboard.title') }}
       </h1>
+      <!-- Search input (expands when open) -->
+      <UInput
+        v-if="isSearchOpen"
+        ref="searchInputRef"
+        v-model="searchQuery"
+        :placeholder="$t('habits.search')"
+        icon="i-lucide-search"
+        size="sm"
+        class="flex-1"
+        @keydown.escape="toggleSearch"
+      />
+      <div
+        v-if="!isSearchOpen"
+        class="flex-1"
+      />
       <div class="flex items-center gap-2">
+        <!-- Search button / Close search -->
         <UButton
-          v-if="habits?.length"
+          v-if="habits?.length && !isReorderMode"
+          :icon="isSearchOpen ? 'i-lucide-x' : 'i-lucide-search'"
+          :color="isSearchOpen ? 'primary' : 'neutral'"
+          :variant="isSearchOpen ? 'solid' : 'ghost'"
+          size="sm"
+          @click="toggleSearch"
+        />
+        <!-- Reorder button -->
+        <UButton
+          v-if="habits?.length && !isSearchOpen"
           :icon="isReorderMode ? 'i-lucide-check' : 'i-lucide-arrow-up-down'"
           :color="isReorderMode ? 'primary' : 'neutral'"
           :variant="isReorderMode ? 'solid' : 'ghost'"
@@ -178,14 +266,14 @@ const showCategoryHeaders = computed(() => {
           @click="isReorderMode = !isReorderMode"
         />
         <USelect
-          v-if="categories?.length && !isReorderMode"
+          v-if="categories?.length && !isReorderMode && !isSearchOpen"
           v-model="selectedCategory"
           :items="categoryFilterOptions"
-          class="w-40"
+          class="w-32 sm:w-40"
           size="sm"
         />
         <UButton
-          v-if="!isReorderMode"
+          v-if="!isReorderMode && !isSearchOpen"
           icon="i-lucide-plus"
           :label="$t('habits.create')"
           to="/habits/new"
@@ -217,17 +305,17 @@ const showCategoryHeaders = computed(() => {
       />
     </UCard>
 
-    <!-- No results for filter -->
+    <!-- No results for filter/search -->
     <UCard
       v-else-if="!filteredHabits.length"
       class="text-center py-8"
     >
       <UIcon
-        name="i-lucide-filter-x"
+        :name="searchQuery ? 'i-lucide-search-x' : 'i-lucide-filter-x'"
         class="w-10 h-10 mx-auto text-gray-400 mb-3"
       />
       <p class="text-gray-500 dark:text-gray-400">
-        {{ $t('habits.noHabitsInCategory') }}
+        {{ searchQuery ? $t('habits.noSearchResults') : $t('habits.noHabitsInCategory') }}
       </p>
     </UCard>
 

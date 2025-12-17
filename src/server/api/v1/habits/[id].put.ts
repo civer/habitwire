@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
       habitType: body.habit_type ?? existing.habitType,
       frequencyType: body.frequency_type ?? existing.frequencyType,
       frequencyValue: body.frequency_value ?? existing.frequencyValue,
+      frequencyPeriod: body.frequency_period ?? existing.frequencyPeriod,
       activeDays: body.active_days ?? existing.activeDays,
       timeOfDay: body.time_of_day ?? existing.timeOfDay,
       targetValue: body.target_value ?? existing.targetValue,

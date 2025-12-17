@@ -42,6 +42,7 @@ const state = reactive({
   habit_type: (initialSelection === 'TARGET' ? 'TARGET' : 'SIMPLE') as 'SIMPLE' | 'TARGET',
   frequency_type: (habit.value.frequency_type || 'DAILY') as 'DAILY' | 'WEEKLY' | 'CUSTOM',
   frequency_value: habit.value.frequency_value || 1,
+  frequency_period: (habit.value.frequency_period || 'week') as 'week' | 'month',
   active_days: habit.value.active_days || [1, 2, 3, 4, 5],
   target_value: habit.value.target_value ?? null,
   default_increment: habit.value.default_increment ?? null,
@@ -89,6 +90,11 @@ const frequencyItems = computed(() => [
   { label: t('habits.frequencyCustom'), value: 'CUSTOM', icon: 'i-lucide-settings-2' }
 ])
 
+const periodOptions = computed(() => [
+  { label: t('habits.periodWeek'), value: 'week' },
+  { label: t('habits.periodMonth'), value: 'month' }
+])
+
 const categoryOptions = computed(() =>
   (categories.value || []).map(c => ({ label: c.name, value: c.id }))
 )
@@ -109,6 +115,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       unit: isTargetHabit.value ? (event.data.unit || null) : null,
       active_days: state.frequency_type === 'WEEKLY' ? state.active_days : null,
       frequency_value: state.frequency_type === 'CUSTOM' ? state.frequency_value : 1,
+      frequency_period: state.frequency_type === 'CUSTOM' ? state.frequency_period : 'week',
       icon: event.data.icon || null,
       color: event.data.color || null,
       prompt_for_notes: promptForNotes
@@ -194,7 +201,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             :items="habitTypeItems"
             orientation="horizontal"
             variant="card"
-            :ui="{ fieldset: 'w-full flex', item: 'flex-1' }"
+            indicator="hidden"
+            :ui="{ fieldset: 'w-full flex gap-2', item: 'flex-1', label: 'text-xs sm:text-sm' }"
           />
           <!-- Target value fields - inline below habit type -->
           <div
@@ -236,7 +244,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             :items="frequencyItems"
             orientation="horizontal"
             variant="card"
-            :ui="{ fieldset: 'w-full flex', item: 'flex-1' }"
+            indicator="hidden"
+            :ui="{ fieldset: 'w-full flex gap-2', item: 'flex-1', label: 'text-xs sm:text-sm' }"
           />
         </UFormField>
 
@@ -262,19 +271,26 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </div>
         </UFormField>
 
-        <!-- Custom: Times per week -->
+        <!-- Custom: Times per period -->
         <UFormField
           v-if="state.frequency_type === 'CUSTOM'"
-          :label="$t('habits.timesPerWeek')"
+          :label="$t('habits.timesPerPeriod')"
           name="frequency_value"
         >
-          <UInput
-            v-model.number="state.frequency_value"
-            type="number"
-            min="1"
-            max="7"
-            class="w-full"
-          />
+          <div class="flex gap-2">
+            <UInput
+              v-model.number="state.frequency_value"
+              type="number"
+              min="1"
+              :max="state.frequency_period === 'week' ? 7 : 31"
+              class="w-20"
+            />
+            <USelect
+              v-model="state.frequency_period"
+              :items="periodOptions"
+              class="flex-1"
+            />
+          </div>
         </UFormField>
 
         <UFormField
