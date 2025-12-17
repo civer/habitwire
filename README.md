@@ -39,14 +39,22 @@ Self-hosted, API-first habit tracker with a modern web UI.
 
 ## Roadmap
 
-- [ ] Offline mode (read-only access without internet)
+- [ ] Offline mode (read-only access with background sync)
+- [ ] Timezone support
+- [ ] Drag & drop sorting
+- [ ] Recurring reminders / notifications
+- [ ] Analytics dashboard
 - [ ] Custom metadata fields for habits
+- [ ] Flexible frequency options
 - [ ] Import functionality (from other habit trackers)
 - [ ] Webhook notifications
-- [ ] Recurring reminders
+- [ ] Cursor-based pagination for large datasets
 - [ ] API key expiration & rotation
 - [ ] Audit logging
 - [ ] Structured JSON logging
+- [ ] Habit search & filtering
+- [ ] Keyboard shortcuts
+- [ ] Bulk operations
 - [ ] Multi-user support with invitations
 
 ## Screenshots
