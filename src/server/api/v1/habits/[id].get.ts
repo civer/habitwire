@@ -1,4 +1,5 @@
 import { getHabitOrThrow } from '@server/utils/db-helpers'
+import { mapHabitToResponse } from '@server/utils/response-mappers'
 
 defineRouteMeta({
   openAPI: {
@@ -26,25 +27,5 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!
   const habit = await getHabitOrThrow(event, id)
 
-  return {
-    id: habit.id,
-    category_id: habit.categoryId,
-    title: habit.title,
-    description: habit.description,
-    habit_type: habit.habitType,
-    frequency_type: habit.frequencyType,
-    frequency_value: habit.frequencyValue,
-    active_days: habit.activeDays,
-    time_of_day: habit.timeOfDay,
-    target_value: habit.targetValue,
-    default_increment: habit.defaultIncrement,
-    unit: habit.unit,
-    color: habit.color,
-    icon: habit.icon,
-    sort_order: habit.sortOrder,
-    archived: habit.archived,
-    prompt_for_notes: habit.promptForNotes,
-    created_at: habit.createdAt,
-    updated_at: habit.updatedAt
-  }
+  return mapHabitToResponse(habit)
 })

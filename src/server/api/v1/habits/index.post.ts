@@ -2,6 +2,7 @@ import { db } from '@server/database'
 import { habits } from '@server/database/schema'
 import { createHabitSchema, validateBody } from '@server/utils/validation'
 import { validateCategoryOwnership } from '@server/utils/db-helpers'
+import { mapHabitToResponse } from '@server/utils/response-mappers'
 
 defineRouteMeta({
   openAPI: {
@@ -75,25 +76,5 @@ export default defineEventHandler(async (event) => {
   }
 
   setResponseStatus(event, 201)
-  return {
-    id: created.id,
-    category_id: created.categoryId,
-    title: created.title,
-    description: created.description,
-    habit_type: created.habitType,
-    frequency_type: created.frequencyType,
-    frequency_value: created.frequencyValue,
-    active_days: created.activeDays,
-    time_of_day: created.timeOfDay,
-    target_value: created.targetValue,
-    default_increment: created.defaultIncrement,
-    unit: created.unit,
-    color: created.color,
-    icon: created.icon,
-    sort_order: created.sortOrder,
-    archived: created.archived,
-    prompt_for_notes: created.promptForNotes,
-    created_at: created.createdAt,
-    updated_at: created.updatedAt
-  }
+  return mapHabitToResponse(created)
 })

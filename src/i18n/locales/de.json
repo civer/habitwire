@@ -4,7 +4,6 @@
     "description": "Selbst-gehosteter Habit Tracker"
   },
   "auth": {
-    "login": "Anmelden",
     "logout": "Abmelden",
     "username": "Benutzername",
     "password": "Passwort",
@@ -63,7 +62,6 @@
     "habitTypeTarget": "Zielwert",
     "targetValue": "Ziel",
     "defaultIncrement": "Standardwert",
-    "currentValue": "Aktuell",
     "unit": "Einheit",
     "units": "Einheiten",
     "icon": "Symbol",
@@ -87,8 +85,7 @@
     "addNote": "Notiz hinzufügen",
     "notePlaceholder": "Was beschäftigt dich?",
     "checkWithNote": "Mit Notiz abhaken",
-    "checkWithoutNote": "Ohne Notiz abhaken",
-    "note": "Notiz"
+    "checkWithoutNote": "Ohne Notiz abhaken"
   },
   "categories": {
     "title": "Kategorien",
@@ -106,12 +103,9 @@
   "common": {
     "save": "Speichern",
     "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "confirm": "Bestätigen",
     "add": "Hinzufügen",
     "today": "Heute",
     "settings": "Einstellungen",
-    "language": "Sprache",
     "error": "Fehler",
     "never": "Nie",
     "undo": "Rückgängig",
@@ -153,7 +147,6 @@
     "completionRate": "Abschlussrate",
     "totalCheckins": "Check-ins gesamt",
     "days": "Tage",
-    "day": "Tag",
     "activity": "Aktivität",
     "recentCheckins": "Letzte Check-ins",
     "less": "Weniger",

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { formatDateString } from '~/utils/date'
+
 const { t } = useI18n()
 
 const props = defineProps<{
@@ -55,7 +57,7 @@ const series = computed(() => {
     for (let d = 0; d < 7; d++) {
       if (currentDate > today) break
 
-      const dateStr = formatDate(currentDate)
+      const dateStr = formatDateString(currentDate)
       const checkin = checkinMap.value.get(dateStr)
       const value = getValue(checkin)
 
@@ -88,13 +90,6 @@ function getValue(checkin: { value: number | null, skipped: boolean } | undefine
 
   // Simple habit: 1 = completed, 0 = not done
   return 1
-}
-
-function formatDate(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
 }
 
 const baseColor = computed(() => props.color || '#22c55e')
