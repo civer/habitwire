@@ -29,6 +29,8 @@
   },
   "habits": {
     "title": "Gewohnheiten",
+    "reorder": "Sortieren",
+    "reorderDone": "Fertig",
     "noHabits": "Noch keine Gewohnheiten",
     "createFirst": "Erstelle deine erste Gewohnheit",
     "create": "Gewohnheit erstellen",
@@ -114,7 +116,7 @@
     "userMenu": "Benutzermenü"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Heute",
     "todayProgress": "Heutiger Fortschritt",
     "streak": "Serie",
     "completionRate": "Abschlussrate"

@@ -8,6 +8,7 @@ const props = defineProps<{
   daysToShow?: number
   weekStartsOn?: 'monday' | 'sunday'
   enableNotes?: boolean
+  showDragHandle?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -233,6 +234,13 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
     />
 
     <div class="flex items-center gap-3">
+      <!-- Drag handle -->
+      <UIcon
+        v-if="showDragHandle"
+        name="i-lucide-grip-vertical"
+        class="drag-handle w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing flex-shrink-0"
+      />
+
       <!-- Layout A: Main habit info -->
       <div class="flex items-center gap-3 flex-1 min-w-0 md:flex-initial md:min-w-[200px]">
         <!-- Check button with progress ring (mobile only - desktop uses week view) -->

@@ -29,6 +29,8 @@
   },
   "habits": {
     "title": "Habits",
+    "reorder": "Reorder",
+    "reorderDone": "Done",
     "noHabits": "No habits yet",
     "createFirst": "Create your first habit",
     "create": "Create habit",
@@ -114,7 +116,7 @@
     "userMenu": "User menu"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Today",
     "todayProgress": "Today's progress",
     "streak": "Streak",
     "completionRate": "Completion rate"

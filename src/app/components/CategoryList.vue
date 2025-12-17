@@ -2,6 +2,9 @@
 import { getErrorMessage } from '~/types/error'
 import type { CategoryResponse } from '~/types/api'
 
+// Dynamic import to avoid SSR issues with vuedraggable
+const draggable = defineAsyncComponent(() => import('vuedraggable'))
+
 interface Category {
   id: string
   name: string
@@ -13,6 +16,29 @@ const { t } = useI18n()
 const toast = useToast()
 
 const { data: categories, refresh } = await useFetch<CategoryResponse[]>('/api/v1/categories')
+
+// Local copy for drag & drop
+const localCategories = ref<CategoryResponse[]>([])
+watch(() => categories.value, (newCategories) => {
+  localCategories.value = newCategories ? [...newCategories] : []
+}, { immediate: true })
+
+async function onReorder() {
+  const ids = localCategories.value.map(c => c.id)
+  try {
+    await $fetch('/api/v1/categories/reorder', {
+      method: 'PUT',
+      body: { ids }
+    })
+  } catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: getErrorMessage(error),
+      color: 'error'
+    })
+    await refresh()
+  }
+}
 
 const editModalOpen = ref(false)
 const editingCategory = ref<Category | null>(null)
@@ -85,53 +111,60 @@ async function deleteCategory(id: string) {
 
 <template>
   <div
-    v-if="!categories?.length"
+    v-if="!localCategories.length"
     class="text-center py-8 text-gray-500"
   >
     {{ $t('categories.noCategory') }}
   </div>
 
-  <div
+  <draggable
     v-else
+    v-model="localCategories"
+    item-key="id"
+    handle=".drag-handle"
+    ghost-class="opacity-50"
     class="divide-y divide-gray-200 dark:divide-gray-800"
+    @end="onReorder"
   >
-    <div
-      v-for="category in categories"
-      :key="category.id"
-      class="flex items-center justify-between py-3"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="w-8 h-8 rounded-lg flex items-center justify-center"
-          :style="{ backgroundColor: category.color ? category.color + '20' : '#6b728020' }"
-        >
+    <template #item="{ element: category }">
+      <div class="flex items-center justify-between py-3">
+        <div class="flex items-center gap-3">
           <UIcon
-            :name="category.icon || 'i-lucide-folder'"
-            class="w-4 h-4"
-            :style="{ color: category.color || '#6b7280' }"
+            name="i-lucide-grip-vertical"
+            class="drag-handle w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing"
+          />
+          <div
+            class="w-8 h-8 rounded-lg flex items-center justify-center"
+            :style="{ backgroundColor: category.color ? category.color + '20' : '#6b728020' }"
+          >
+            <UIcon
+              :name="category.icon || 'i-lucide-folder'"
+              class="w-4 h-4"
+              :style="{ color: category.color || '#6b7280' }"
+            />
+          </div>
+          <span>{{ category.name }}</span>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-pencil"
+            size="sm"
+            @click="openEdit(category)"
+          />
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-trash-2"
+            size="sm"
+            @click="deleteCategory(category.id)"
           />
         </div>
-        <span>{{ category.name }}</span>
       </div>
-
-      <div class="flex items-center gap-1">
-        <UButton
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-pencil"
-          size="sm"
-          @click="openEdit(category)"
-        />
-        <UButton
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-trash-2"
-          size="sm"
-          @click="deleteCategory(category.id)"
-        />
-      </div>
-    </div>
-  </div>
+    </template>
+  </draggable>
 
   <!-- Edit Modal -->
   <UModal v-model:open="editModalOpen">
