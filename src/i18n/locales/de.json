@@ -4,7 +4,6 @@
     "description": "Selbst-gehosteter Habit Tracker"
   },
   "auth": {
-    "login": "Anmelden",
     "logout": "Abmelden",
     "username": "Benutzername",
     "password": "Passwort",
@@ -30,6 +29,8 @@
   },
   "habits": {
     "title": "Gewohnheiten",
+    "reorder": "Sortieren",
+    "reorderDone": "Fertig",
     "noHabits": "Noch keine Gewohnheiten",
     "createFirst": "Erstelle deine erste Gewohnheit",
     "create": "Gewohnheit erstellen",
@@ -54,16 +55,17 @@
     "frequency": "Häufigkeit",
     "frequencyDaily": "Täglich",
     "frequencyWeekly": "Wöchentlich",
-    "frequencyCustom": "Benutzerdefiniert",
+    "frequencyCustom": "Frequenz",
     "activeDays": "Aktive Tage",
-    "timesPerWeek": "Mal pro Woche",
+    "timesPerPeriod": "Mal pro",
+    "periodWeek": "Woche",
+    "periodMonth": "Monat",
     "habitType": "Art",
     "habitTypeSimple": "Einfach",
     "habitTypeWithNote": "Mit Notiz",
     "habitTypeTarget": "Zielwert",
     "targetValue": "Ziel",
     "defaultIncrement": "Standardwert",
-    "currentValue": "Aktuell",
     "unit": "Einheit",
     "units": "Einheiten",
     "icon": "Symbol",
@@ -80,6 +82,8 @@
       "sun": "So"
     },
     "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie",
+    "search": "Suchen",
+    "noSearchResults": "Keine Gewohnheiten gefunden",
     "promptForNotes": "Nach Notiz fragen",
     "promptForNotesDescription": "Öffnet einen Dialog zum Hinzufügen einer Notiz beim Abhaken"
   },
@@ -87,8 +91,7 @@
     "addNote": "Notiz hinzufügen",
     "notePlaceholder": "Was beschäftigt dich?",
     "checkWithNote": "Mit Notiz abhaken",
-    "checkWithoutNote": "Ohne Notiz abhaken",
-    "note": "Notiz"
+    "checkWithoutNote": "Ohne Notiz abhaken"
   },
   "categories": {
     "title": "Kategorien",
@@ -106,12 +109,9 @@
   "common": {
     "save": "Speichern",
     "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "confirm": "Bestätigen",
     "add": "Hinzufügen",
     "today": "Heute",
     "settings": "Einstellungen",
-    "language": "Sprache",
     "error": "Fehler",
     "never": "Nie",
     "undo": "Rückgängig",
@@ -120,7 +120,7 @@
     "userMenu": "Benutzermenü"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Heute",
     "todayProgress": "Heutiger Fortschritt",
     "streak": "Serie",
     "completionRate": "Abschlussrate"
@@ -153,7 +153,6 @@
     "completionRate": "Abschlussrate",
     "totalCheckins": "Check-ins gesamt",
     "days": "Tage",
-    "day": "Tag",
     "activity": "Aktivität",
     "recentCheckins": "Letzte Check-ins",
     "less": "Weniger",

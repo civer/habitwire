@@ -3,6 +3,7 @@ import { db } from '@server/database'
 import { checkins, users } from '@server/database/schema'
 import { calculateStreakStats } from '@server/utils/streaks'
 import { getHabitOrThrow } from '@server/utils/db-helpers'
+import { validateQuery, statsQuerySchema } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -16,6 +17,13 @@ defineRouteMeta({
         description: 'Habit ID',
         required: true,
         schema: { type: 'string', format: 'uuid' }
+      },
+      {
+        name: 'today',
+        in: 'query',
+        description: 'Client\'s current date (YYYY-MM-DD) for timezone-aware streak calculation',
+        required: false,
+        schema: { type: 'string', format: 'date' }
       }
     ],
     responses: {
@@ -29,6 +37,7 @@ defineRouteMeta({
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
   const id = getRouterParam(event, 'id')!
+  const { today: clientToday } = validateQuery(event, statsQuerySchema)
   const habit = await getHabitOrThrow(event, id)
 
   // Get user settings
@@ -58,12 +67,14 @@ export default defineEventHandler(async (event) => {
     {
       frequencyType: habit.frequencyType,
       frequencyValue: habit.frequencyValue,
-      activeDays: habit.activeDays as number[] | null,
+      frequencyPeriod: habit.frequencyPeriod,
+      activeDays: habit.activeDays,
       habitType: habit.habitType,
       targetValue: habit.targetValue,
       createdAt: habit.createdAt
     },
-    skippedBreaksStreak
+    skippedBreaksStreak,
+    clientToday
   )
 
   return {

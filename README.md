@@ -25,6 +25,8 @@ Self-hosted, API-first habit tracker with a modern web UI.
 - **Habit Tracking** - Create and manage daily, weekly, or custom frequency habits
 - **Two Habit Types** - Simple (yes/no) or Target-based (track progress towards a goal)
 - **Streak Tracking** - Monitor current and longest streaks with smart skip handling
+- **Search & Filter** - Quickly find habits with `Cmd/Ctrl+K`
+- **Drag & Drop Sorting** - Reorder habits and categories to your preference
 - **Categories** - Organize habits with custom colors and icons
 - **GitHub-style Heatmap** - Visualize your progress over time
 - **Statistics** - Completion rates, streaks, and detailed analytics per habit
@@ -51,9 +53,14 @@ Self-hosted, API-first habit tracker with a modern web UI.
 
 ## Screenshots
 
-![HabitWire Dashboard](.github/images/screenshot1.png)
+**Dashboard** - Track your habits with categories, streaks, and weekly progress
+![HabitWire Dashboard](.github/images/screenshot1.jpeg)
 
-![HabitWire Habit Details](.github/images/screenshot2.png)
+**Habit Details** - View statistics, completion rate, and activity heatmap
+![HabitWire Habit Details](.github/images/screenshot2.jpeg)
+
+**Create/Edit Habit** - Customize type, frequency, icons, and colors
+![HabitWire Edit Habit](.github/images/screenshot3.jpeg)
 
 ## Installation
 

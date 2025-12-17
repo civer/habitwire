@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { getErrorMessage } from '~/types/error'
 import type { CategoryResponse, UserResponse } from '~/types/api'
+import { useHabitSchema, type HabitFormSchema } from '~/composables/useHabitSchema'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -12,42 +12,8 @@ const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categor
 const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
 const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?? false)
 
-const baseSchema = z.object({
-  title: z.string().min(1, t('validation.required', { field: t('habits.habitTitle') })),
-  description: z.string().optional(),
-  habit_type: z.enum(['SIMPLE', 'TARGET']),
-  frequency_type: z.enum(['DAILY', 'WEEKLY', 'CUSTOM']),
-  frequency_value: z.coerce.number().optional(),
-  active_days: z.array(z.number()).optional(),
-  target_value: z.union([z.coerce.number().positive(), z.null(), z.literal('')]).optional(),
-  default_increment: z.union([z.coerce.number().positive(), z.null(), z.literal('')]).optional(),
-  unit: z.string().optional(),
-  category_id: z.string().nullish(),
-  icon: z.string().optional(),
-  color: z.string().optional(),
-  prompt_for_notes: z.boolean().optional()
-})
-
-const schema = baseSchema.superRefine((data, ctx) => {
-  // WEEKLY requires at least one active day
-  if (data.frequency_type === 'WEEKLY' && (!data.active_days || data.active_days.length === 0)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: t('validation.selectAtLeastOneDay'),
-      path: ['active_days']
-    })
-  }
-  // CUSTOM requires frequency_value >= 1
-  if (data.frequency_type === 'CUSTOM' && (!data.frequency_value || data.frequency_value < 1)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: t('validation.minValue', { min: 1 }),
-      path: ['frequency_value']
-    })
-  }
-})
-
-type Schema = z.output<typeof schema>
+const { schema, weekdays } = useHabitSchema(t)
+type Schema = HabitFormSchema
 
 const state = reactive({
   title: '',
@@ -56,6 +22,7 @@ const state = reactive({
   habit_type: 'SIMPLE' as 'SIMPLE' | 'TARGET',
   frequency_type: 'DAILY' as 'DAILY' | 'WEEKLY' | 'CUSTOM',
   frequency_value: 1,
+  frequency_period: 'week' as 'week' | 'month',
   active_days: [1, 2, 3, 4, 5] as number[],
   target_value: null as number | null,
   default_increment: null as number | null,
@@ -70,54 +37,8 @@ watch(() => state.habit_selection, (selection) => {
   state.habit_type = selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
 })
 
-const weekdays = computed(() => [
-  { label: t('habits.weekdays.mon'), value: 1 },
-  { label: t('habits.weekdays.tue'), value: 2 },
-  { label: t('habits.weekdays.wed'), value: 3 },
-  { label: t('habits.weekdays.thu'), value: 4 },
-  { label: t('habits.weekdays.fri'), value: 5 },
-  { label: t('habits.weekdays.sat'), value: 6 },
-  { label: t('habits.weekdays.sun'), value: 0 }
-])
-
-const habitIcons = [
-  'i-lucide-target',
-  'i-lucide-dumbbell',
-  'i-lucide-droplet',
-  'i-lucide-book-open',
-  'i-lucide-bed',
-  'i-lucide-pill',
-  'i-lucide-apple',
-  'i-lucide-footprints',
-  'i-lucide-brain',
-  'i-lucide-heart',
-  'i-lucide-sun',
-  'i-lucide-moon',
-  'i-lucide-coffee',
-  'i-lucide-cigarette-off',
-  'i-lucide-music',
-  'i-lucide-pencil',
-  'i-lucide-code',
-  'i-lucide-flame',
-  'i-lucide-leaf',
-  'i-lucide-star',
-  'i-lucide-zap',
-  'i-lucide-trophy',
-  'i-lucide-smile',
-  'i-lucide-sparkles',
-  'i-lucide-graduation-cap',
-  'i-lucide-palette',
-  'i-lucide-camera',
-  'i-lucide-dollar-sign',
-  'i-lucide-users',
-  'i-lucide-home'
-]
-
-const presetColors = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
-  '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#a855f7',
-  '#d946ef', '#ec4899', '#6b7280'
-]
+const { habitIcons } = useIcons()
+const { presetColors } = useColors()
 
 const loading = ref(false)
 const formRef = ref()
@@ -149,6 +70,11 @@ const frequencyItems = computed(() => [
   { label: t('habits.frequencyCustom'), value: 'CUSTOM', icon: 'i-lucide-settings-2' }
 ])
 
+const periodOptions = computed(() => [
+  { label: t('habits.periodWeek'), value: 'week' },
+  { label: t('habits.periodMonth'), value: 'month' }
+])
+
 const categoryOptions = computed(() =>
   (categories.value || []).map(c => ({ label: c.name, value: c.id }))
 )
@@ -169,6 +95,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       unit: isTargetHabit.value ? (event.data.unit || null) : null,
       active_days: state.frequency_type === 'WEEKLY' ? state.active_days : null,
       frequency_value: state.frequency_type === 'CUSTOM' ? state.frequency_value : 1,
+      frequency_period: state.frequency_type === 'CUSTOM' ? state.frequency_period : 'week',
       icon: event.data.icon || null,
       color: event.data.color || null,
       prompt_for_notes: promptForNotes
@@ -254,7 +181,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             :items="habitTypeItems"
             orientation="horizontal"
             variant="card"
-            :ui="{ fieldset: 'w-full flex', item: 'flex-1' }"
+            indicator="hidden"
+            :ui="{ fieldset: 'w-full flex gap-2', item: 'flex-1', label: 'text-xs sm:text-sm' }"
           />
           <!-- Target value fields - inline below habit type -->
           <div
@@ -296,7 +224,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             :items="frequencyItems"
             orientation="horizontal"
             variant="card"
-            :ui="{ fieldset: 'w-full flex', item: 'flex-1' }"
+            indicator="hidden"
+            :ui="{ fieldset: 'w-full flex gap-2', item: 'flex-1', label: 'text-xs sm:text-sm' }"
           />
         </UFormField>
 
@@ -322,19 +251,26 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </div>
         </UFormField>
 
-        <!-- Custom: Times per week -->
+        <!-- Custom: Times per period -->
         <UFormField
           v-if="state.frequency_type === 'CUSTOM'"
-          :label="$t('habits.timesPerWeek')"
+          :label="$t('habits.timesPerPeriod')"
           name="frequency_value"
         >
-          <UInput
-            v-model.number="state.frequency_value"
-            type="number"
-            min="1"
-            max="7"
-            class="w-full"
-          />
+          <div class="flex gap-2">
+            <UInput
+              v-model.number="state.frequency_value"
+              type="number"
+              min="1"
+              :max="state.frequency_period === 'week' ? 7 : 31"
+              class="w-20"
+            />
+            <USelect
+              v-model="state.frequency_period"
+              :items="periodOptions"
+              class="flex-1"
+            />
+          </div>
         </UFormField>
 
         <UFormField

@@ -4,7 +4,6 @@
     "description": "Self-hosted habit tracker"
   },
   "auth": {
-    "login": "Login",
     "logout": "Logout",
     "username": "Username",
     "password": "Password",
@@ -30,6 +29,8 @@
   },
   "habits": {
     "title": "Habits",
+    "reorder": "Reorder",
+    "reorderDone": "Done",
     "noHabits": "No habits yet",
     "createFirst": "Create your first habit",
     "create": "Create habit",
@@ -56,14 +57,15 @@
     "frequencyWeekly": "Weekly",
     "frequencyCustom": "Custom",
     "activeDays": "Active days",
-    "timesPerWeek": "Times per week",
+    "timesPerPeriod": "Times per",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
     "habitType": "Type",
     "habitTypeSimple": "Simple",
     "habitTypeWithNote": "With note",
     "habitTypeTarget": "Target value",
     "targetValue": "Target",
     "defaultIncrement": "Default increment",
-    "currentValue": "Current",
     "unit": "Unit",
     "units": "units",
     "icon": "Icon",
@@ -80,6 +82,8 @@
       "sun": "Sun"
     },
     "noHabitsInCategory": "No habits in this category",
+    "search": "Search",
+    "noSearchResults": "No habits found",
     "promptForNotes": "Prompt for note",
     "promptForNotesDescription": "Opens a dialog to add a note when checking this habit"
   },
@@ -87,8 +91,7 @@
     "addNote": "Add note",
     "notePlaceholder": "What's on your mind?",
     "checkWithNote": "Check with note",
-    "checkWithoutNote": "Check without note",
-    "note": "Note"
+    "checkWithoutNote": "Check without note"
   },
   "categories": {
     "title": "Categories",
@@ -106,12 +109,9 @@
   "common": {
     "save": "Save",
     "cancel": "Cancel",
-    "delete": "Delete",
-    "confirm": "Confirm",
     "add": "Add",
     "today": "Today",
     "settings": "Settings",
-    "language": "Language",
     "error": "Error",
     "never": "Never",
     "undo": "Undo",
@@ -120,7 +120,7 @@
     "userMenu": "User menu"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Today",
     "todayProgress": "Today's progress",
     "streak": "Streak",
     "completionRate": "Completion rate"
@@ -153,7 +153,6 @@
     "completionRate": "Completion rate",
     "totalCheckins": "Total check-ins",
     "days": "days",
-    "day": "day",
     "activity": "Activity",
     "recentCheckins": "Recent check-ins",
     "less": "Less",

@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2025-12-17
+
+### Added
+- **Monthly Frequency** - CUSTOM frequency now supports "X times per month" in addition to weekly
+  - Streak calculation counts completed months (grace period for incomplete current month)
+  - New dropdown to select between "per week" and "per month"
+- **Habit Search** - Search and filter habits on the dashboard
+  - Press `Cmd/Ctrl+K` to quickly open search
+  - Press `Escape` to close search or exit reorder mode
+- **Drag & Drop Sorting** - Reorder habits and categories via drag & drop
+  - Enter reorder mode from the dashboard menu
+  - New API endpoints for position updates
+
+### Fixed
+- **Timezone handling** - Streak calculations now use client's local date
+  - Prevents incorrect streaks when server and client are in different timezones
+  - API accepts optional `today` query parameter for timezone-aware calculations
+- Mobile modal positioning now correctly uses `align="center"`
+- Frequency dropdown overflow on mobile devices
+
+### Changed
+- Streak calculation refactored for better maintainability and monthly support
+- Test coverage expanded for all frequency types
+
 ## [0.9.5] - 2025-12-16
 
 ### Added
@@ -134,6 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database schema may change before 1.0 release (migrations will be provided)
 - Multi-user support planned for future releases
 
+[0.9.6]: https://github.com/civer/habitwire/releases/tag/v0.9.6
 [0.9.5]: https://github.com/civer/habitwire/releases/tag/v0.9.5
 [0.9.4]: https://github.com/civer/habitwire/releases/tag/v0.9.4
 [0.9.3]: https://github.com/civer/habitwire/releases/tag/v0.9.3

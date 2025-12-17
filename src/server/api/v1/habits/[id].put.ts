@@ -3,6 +3,7 @@ import { db } from '@server/database'
 import { habits } from '@server/database/schema'
 import { updateHabitSchema, validateBody } from '@server/utils/validation'
 import { getHabitOrThrow, validateCategoryOwnership } from '@server/utils/db-helpers'
+import { mapHabitToResponse } from '@server/utils/response-mappers'
 
 defineRouteMeta({
   openAPI: {
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
       habitType: body.habit_type ?? existing.habitType,
       frequencyType: body.frequency_type ?? existing.frequencyType,
       frequencyValue: body.frequency_value ?? existing.frequencyValue,
+      frequencyPeriod: body.frequency_period ?? existing.frequencyPeriod,
       activeDays: body.active_days ?? existing.activeDays,
       timeOfDay: body.time_of_day ?? existing.timeOfDay,
       targetValue: body.target_value ?? existing.targetValue,
@@ -63,25 +65,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return {
-    id: updated.id,
-    category_id: updated.categoryId,
-    title: updated.title,
-    description: updated.description,
-    habit_type: updated.habitType,
-    frequency_type: updated.frequencyType,
-    frequency_value: updated.frequencyValue,
-    active_days: updated.activeDays,
-    time_of_day: updated.timeOfDay,
-    target_value: updated.targetValue,
-    default_increment: updated.defaultIncrement,
-    unit: updated.unit,
-    color: updated.color,
-    icon: updated.icon,
-    sort_order: updated.sortOrder,
-    archived: updated.archived,
-    prompt_for_notes: updated.promptForNotes,
-    created_at: updated.createdAt,
-    updated_at: updated.updatedAt
-  }
+  return mapHabitToResponse(updated)
 })
