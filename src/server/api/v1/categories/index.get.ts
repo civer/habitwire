@@ -1,4 +1,4 @@
-import { eq, asc } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@server/database'
 import { categories } from '@server/database/schema'
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await db.query.categories.findMany({
     where: eq(categories.userId, userId),
-    orderBy: asc(categories.name)
+    orderBy: categories.sortOrder
   })
 
   return result.map(c => ({

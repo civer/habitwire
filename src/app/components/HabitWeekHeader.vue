@@ -4,38 +4,9 @@ const props = defineProps<{
   weekStartsOn?: 'monday' | 'sunday'
 }>()
 
-function formatDateString(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-const today = formatDateString(new Date())
-
-const daysCount = computed(() => props.daysToShow ?? 14)
-const weekStart = computed(() => props.weekStartsOn ?? 'monday')
-
-function isWeekStart(date: Date): boolean {
-  const dayOfWeek = date.getDay()
-  return weekStart.value === 'monday' ? dayOfWeek === 1 : dayOfWeek === 0
-}
-
-const displayDays = computed(() => {
-  const days: { date: string, dayName: string, isToday: boolean, isWeekStart: boolean }[] = []
-  const now = new Date()
-  for (let i = daysCount.value - 1; i >= 0; i--) {
-    const d = new Date(now)
-    d.setDate(d.getDate() - i)
-    const dateStr = formatDateString(d)
-    days.push({
-      date: dateStr,
-      dayName: d.toLocaleDateString(undefined, { weekday: 'short' }),
-      isToday: dateStr === today,
-      isWeekStart: isWeekStart(d) && i !== daysCount.value - 1
-    })
-  }
-  return days
+const { displayDays } = useDisplayDays({
+  daysToShow: toRef(props, 'daysToShow'),
+  weekStartsOn: toRef(props, 'weekStartsOn')
 })
 </script>
 

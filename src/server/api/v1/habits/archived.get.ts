@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@server/database'
 import { habits } from '@server/database/schema'
+import { mapHabitToResponse } from '@server/utils/response-mappers'
 
 defineRouteMeta({
   openAPI: {
@@ -22,24 +23,5 @@ export default defineEventHandler(async (event) => {
     orderBy: habits.sortOrder
   })
 
-  return result.map(h => ({
-    id: h.id,
-    category_id: h.categoryId,
-    title: h.title,
-    description: h.description,
-    habit_type: h.habitType,
-    frequency_type: h.frequencyType,
-    frequency_value: h.frequencyValue,
-    active_days: h.activeDays,
-    time_of_day: h.timeOfDay,
-    target_value: h.targetValue,
-    default_increment: h.defaultIncrement,
-    unit: h.unit,
-    color: h.color,
-    icon: h.icon,
-    sort_order: h.sortOrder,
-    archived: h.archived,
-    created_at: h.createdAt,
-    updated_at: h.updatedAt
-  }))
+  return result.map(mapHabitToResponse)
 })

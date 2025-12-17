@@ -10,36 +10,28 @@ const apiKeyKey = ref(0)
 const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'security'>('general')
 
 const { data: userData, refresh: refreshUser } = await useFetch<UserResponse>('/api/v1/auth/me')
-const allowBackfill = ref(userData.value?.user?.settings?.allowBackfill ?? false)
-const groupByCategory = ref(userData.value?.user?.settings?.groupByCategory ?? true)
-const skippedBreaksStreak = ref(userData.value?.user?.settings?.skippedBreaksStreak ?? true)
-const desktopDaysToShow = ref(userData.value?.user?.settings?.desktopDaysToShow ?? 14)
-const weekStartsOn = ref<'monday' | 'sunday'>(userData.value?.user?.settings?.weekStartsOn ?? 'monday')
-const enableNotes = ref(userData.value?.user?.settings?.enableNotes ?? false)
 
-watch(() => userData.value?.user?.settings?.allowBackfill, (newVal) => {
-  allowBackfill.value = newVal ?? false
-})
+// Local refs for settings (synced from server)
+const allowBackfill = ref(false)
+const groupByCategory = ref(true)
+const skippedBreaksStreak = ref(true)
+const desktopDaysToShow = ref(14)
+const weekStartsOn = ref<'monday' | 'sunday'>('monday')
+const enableNotes = ref(false)
 
-watch(() => userData.value?.user?.settings?.groupByCategory, (newVal) => {
-  groupByCategory.value = newVal ?? true
-})
-
-watch(() => userData.value?.user?.settings?.skippedBreaksStreak, (newVal) => {
-  skippedBreaksStreak.value = newVal ?? false
-})
-
-watch(() => userData.value?.user?.settings?.desktopDaysToShow, (newVal) => {
-  desktopDaysToShow.value = newVal ?? 14
-})
-
-watch(() => userData.value?.user?.settings?.weekStartsOn, (newVal) => {
-  weekStartsOn.value = newVal ?? 'monday'
-})
-
-watch(() => userData.value?.user?.settings?.enableNotes, (newVal) => {
-  enableNotes.value = newVal ?? false
-})
+// Sync all settings from server data
+watch(
+  () => userData.value?.user?.settings,
+  (settings) => {
+    allowBackfill.value = settings?.allowBackfill ?? false
+    groupByCategory.value = settings?.groupByCategory ?? true
+    skippedBreaksStreak.value = settings?.skippedBreaksStreak ?? true
+    desktopDaysToShow.value = settings?.desktopDaysToShow ?? 14
+    weekStartsOn.value = settings?.weekStartsOn ?? 'monday'
+    enableNotes.value = settings?.enableNotes ?? false
+  },
+  { immediate: true }
+)
 
 async function updateSetting(key: string, value: boolean | number | string, previousValue?: boolean | number | string) {
   try {

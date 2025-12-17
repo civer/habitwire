@@ -6,6 +6,8 @@ import type { Checkin, HabitConfig } from '@server/utils/streaks'
 export function createHabitConfig(overrides: Partial<HabitConfig> = {}): HabitConfig {
   return {
     frequencyType: 'DAILY',
+    frequencyValue: null,
+    frequencyPeriod: null,
     activeDays: null,
     habitType: 'SIMPLE',
     targetValue: null,

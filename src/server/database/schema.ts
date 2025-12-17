@@ -39,7 +39,8 @@ export const habits = pgTable('habits', {
   habitType: text('habit_type').default('SIMPLE').notNull(), // SIMPLE, TARGET
   frequencyType: text('frequency_type').notNull(), // DAILY, WEEKLY, CUSTOM
   frequencyValue: integer('frequency_value').default(1),
-  activeDays: jsonb('active_days'), // [1,2,3,4,5] = Mo-Fr
+  frequencyPeriod: text('frequency_period').default('week'), // week, month (for CUSTOM type)
+  activeDays: jsonb('active_days').$type<number[] | null>(), // [1,2,3,4,5] = Mo-Fr
   timeOfDay: text('time_of_day'), // morning, afternoon, evening
   targetValue: doublePrecision('target_value'), // doublePrecision maps to number, API validates int for now
   defaultIncrement: doublePrecision('default_increment'),

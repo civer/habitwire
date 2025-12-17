@@ -159,7 +159,131 @@ describe('calculateCurrentStreak', () => {
     })
   })
 
-  describe('CUSTOM frequency (counts weeks)', () => {
+  describe('CUSTOM frequency weekly (X times per week)', () => {
+    it('returns 1 when last week meets frequency requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 3,
+        frequencyPeriod: 'week'
+      })
+
+      // Today is Wed 31 Dec
+      // Current week (Mon 29 Dec): 2 checkins so far (grace period)
+      // Last week (Mon 22 Dec): 3 checkins → meets requirement
+      const checkins = generateCheckinsForDates([
+        '2025-12-31', '2025-12-30', // Current week: 2 (grace)
+        '2025-12-26', '2025-12-24', '2025-12-22' // Last week: 3 ✓
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(1)
+    })
+
+    it('returns 0 when last week does not meet frequency requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 3,
+        frequencyPeriod: 'week'
+      })
+
+      // Last week: only 2 checkins (need 3)
+      const checkins = generateCheckinsForDates([
+        '2025-12-31', // Current week
+        '2025-12-26', '2025-12-24' // Last week: only 2
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(0)
+    })
+
+    it('returns 2 when two consecutive weeks meet requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 2,
+        frequencyPeriod: 'week'
+      })
+
+      const checkins = generateCheckinsForDates([
+        '2025-12-30', // Current week: 1 (grace)
+        '2025-12-26', '2025-12-23', // Last week: 2 ✓
+        '2025-12-19', '2025-12-16' // Week before: 2 ✓
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(2)
+    })
+  })
+
+  describe('CUSTOM frequency monthly (X times per month)', () => {
+    it('returns 1 when current month meets frequency requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 1,
+        frequencyPeriod: 'month'
+      })
+
+      // Today is Wed 31 Dec, 1 checkin in December
+      const checkins = generateCheckinsForDates(['2025-12-15'])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(1)
+    })
+
+    it('returns 2 when two consecutive months meet requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 2,
+        frequencyPeriod: 'month'
+      })
+
+      // December: 2 checkins, November: 2 checkins
+      const checkins = generateCheckinsForDates([
+        '2025-12-20', '2025-12-10', // December: 2 ✓
+        '2025-11-25', '2025-11-15' // November: 2 ✓
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(2)
+    })
+
+    it('returns 0 when previous month does not meet requirement', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 3,
+        frequencyPeriod: 'month'
+      })
+
+      // December: 3 checkins ✓, November: only 2 (need 3)
+      const checkins = generateCheckinsForDates([
+        '2025-12-25', '2025-12-15', '2025-12-05', // December: 3 ✓
+        '2025-11-20', '2025-11-10' // November: 2 (need 3) ✗
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(1) // Only December counts
+    })
+
+    it('current month incomplete on last day breaks streak', () => {
+      const habit = createHabitConfig({
+        frequencyType: 'CUSTOM',
+        frequencyValue: 5,
+        frequencyPeriod: 'month'
+      })
+
+      // Test date is Dec 31 (last day of month)
+      // December: 2 checkins (need 5, no grace - month is over)
+      // November: 5 checkins ✓
+      const checkins = generateCheckinsForDates([
+        '2025-12-20', '2025-12-10', // December: 2 (incomplete, month over on 31st)
+        '2025-11-30', '2025-11-25', '2025-11-20', '2025-11-15', '2025-11-10' // November: 5 ✓
+      ])
+
+      const result = calculateCurrentStreak(checkins, habit, false)
+      expect(result).toBe(0) // December incomplete, breaks streak
+    })
+  })
+
+  describe('CUSTOM frequency (legacy tests)', () => {
     it('returns 0 for empty activeDays array', () => {
       const habit = createHabitConfig({
         frequencyType: 'WEEKLY',

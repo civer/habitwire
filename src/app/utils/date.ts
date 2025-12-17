@@ -1,8 +1,8 @@
 /**
- * Format a Date object as YYYY-MM-DD in local timezone
- * This ensures consistent date handling across the application
+ * Formats a Date object to YYYY-MM-DD string format.
+ * Used for API communication and date comparisons.
  */
-export function formatDateLocal(date: Date): string {
+export function formatDateString(date: Date): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -20,13 +20,4 @@ export function parseLocalDate(dateStr: string): Date {
   const month = parts[1] ?? 1
   const day = parts[2] ?? 1
   return new Date(year, month - 1, day, 12, 0, 0, 0)
-}
-
-/**
- * Get today's date as YYYY-MM-DD string in local timezone
- */
-export function getTodayLocal(): string {
-  const today = new Date()
-  today.setHours(12, 0, 0, 0)
-  return formatDateLocal(today)
 }

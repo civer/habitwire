@@ -1,9 +1,9 @@
-import { eq, and, gte, lte, inArray, asc, desc } from 'drizzle-orm'
+import { eq, and, gte, lte, inArray, desc } from 'drizzle-orm'
 import { db } from '@server/database'
 import { habits, checkins, users } from '@server/database/schema'
 import { calculateCurrentStreak } from '@server/utils/streaks'
 import { validateQuery, habitsQuerySchema } from '@server/utils/validation'
-import { formatDateLocal } from '@server/utils/date'
+import { formatDateLocal, parseLocalDate } from '@server/utils/date'
 
 defineRouteMeta({
   openAPI: {
@@ -17,6 +17,13 @@ defineRouteMeta({
         description: 'Filter by category ID',
         required: false,
         schema: { type: 'string', format: 'uuid' }
+      },
+      {
+        name: 'today',
+        in: 'query',
+        description: 'Client\'s current date (YYYY-MM-DD) for timezone-aware streak calculation',
+        required: false,
+        schema: { type: 'string', format: 'date' }
       }
     ],
     responses: {
@@ -28,7 +35,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
-  const { category: categoryId } = validateQuery(event, habitsQuerySchema)
+  const { category: categoryId, today: clientToday } = validateQuery(event, habitsQuerySchema)
 
   // Get user settings for streak calculation and display
   const user = await db.query.users.findFirst({
@@ -44,14 +51,15 @@ export default defineEventHandler(async (event) => {
 
   const result = await db.query.habits.findMany({
     where: whereClause,
-    orderBy: asc(habits.title),
+    orderBy: habits.sortOrder,
     with: {
       category: true
     }
   })
 
-  // Calculate date range based on user setting (for display)
-  const today = new Date()
+  // Use client's "today" if provided (for timezone handling), otherwise server's local time
+  const today = clientToday ? parseLocalDate(clientToday) : new Date()
+  today.setHours(12, 0, 0, 0)
   const toDate = formatDateLocal(today)
   const fromDateObj = new Date(today)
   fromDateObj.setDate(fromDateObj.getDate() - (desktopDaysToShow - 1))
@@ -71,11 +79,11 @@ export default defineEventHandler(async (event) => {
       ))
   }
 
-  // Fetch checkins for streak calculation (limited to 30 days for performance)
-  // 30 days is sufficient for current streak - if broken for 30+ days, streak is 0
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const streakFromDate = formatDateLocal(thirtyDaysAgo)
+  // Fetch checkins for streak calculation (120 days for monthly habits)
+  // 120 days covers ~4 months for monthly custom habits
+  const streakDaysBack = new Date()
+  streakDaysBack.setDate(streakDaysBack.getDate() - 120)
+  const streakFromDate = formatDateLocal(streakDaysBack)
 
   let streakCheckins: { habitId: string, date: string, skipped: boolean | null, value: number | null }[] = []
   if (habitIds.length > 0) {
@@ -122,12 +130,14 @@ export default defineEventHandler(async (event) => {
       {
         frequencyType: h.frequencyType,
         frequencyValue: h.frequencyValue,
-        activeDays: h.activeDays as number[] | null,
+        frequencyPeriod: h.frequencyPeriod,
+        activeDays: h.activeDays,
         habitType: h.habitType,
         targetValue: h.targetValue,
         createdAt: h.createdAt
       },
-      skippedBreaksStreak
+      skippedBreaksStreak,
+      clientToday
     )
 
     return {
@@ -138,6 +148,7 @@ export default defineEventHandler(async (event) => {
       habit_type: h.habitType,
       frequency_type: h.frequencyType,
       frequency_value: h.frequencyValue,
+      frequency_period: h.frequencyPeriod,
       active_days: h.activeDays,
       time_of_day: h.timeOfDay,
       target_value: h.targetValue,

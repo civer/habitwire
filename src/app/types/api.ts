@@ -9,6 +9,7 @@ export interface HabitResponse {
   habit_type: string
   frequency_type: string
   frequency_value: number | null
+  frequency_period: string | null
   active_days: number[] | null
   time_of_day: string | null
   target_value: number | null

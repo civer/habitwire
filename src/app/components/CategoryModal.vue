@@ -27,54 +27,8 @@ const state = reactive({
   icon: ''
 })
 
-const categoryIcons = [
-  'i-lucide-folder',
-  'i-lucide-briefcase',
-  'i-lucide-home',
-  'i-lucide-heart',
-  'i-lucide-star',
-  'i-lucide-zap',
-  'i-lucide-trophy',
-  'i-lucide-target',
-  'i-lucide-flame',
-  'i-lucide-leaf',
-  'i-lucide-sun',
-  'i-lucide-moon',
-  'i-lucide-dumbbell',
-  'i-lucide-brain',
-  'i-lucide-book',
-  'i-lucide-book-open',
-  'i-lucide-graduation-cap',
-  'i-lucide-music',
-  'i-lucide-palette',
-  'i-lucide-camera',
-  'i-lucide-code',
-  'i-lucide-dollar-sign',
-  'i-lucide-users',
-  'i-lucide-smile',
-  'i-lucide-sparkles',
-  'i-lucide-coffee',
-  'i-lucide-droplet',
-  'i-lucide-pill',
-  'i-lucide-apple',
-  'i-lucide-footprints'
-]
-
-const presetColors = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#f59e0b', // amber
-  '#eab308', // yellow
-  '#84cc16', // lime
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
-  '#3b82f6', // blue
-  '#a855f7', // purple
-  '#d946ef', // fuchsia
-  '#ec4899', // pink
-  '#6b7280' // gray
-]
+const { categoryIcons } = useIcons()
+const { presetColors } = useColors()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
