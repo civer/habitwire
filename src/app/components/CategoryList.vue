@@ -66,7 +66,7 @@ async function saveEdit() {
 
 async function deleteCategory(id: string) {
   try {
-    await $fetch(`/api/v1/categories/${id}`, { method: 'DELETE' })
+    await $fetch(`/api/v1/categories/${id}` as '/api/v1/categories/:id', { method: 'DELETE' })
     await refresh()
     toast.add({
       title: t('categories.delete'),

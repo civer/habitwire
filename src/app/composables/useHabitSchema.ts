@@ -42,8 +42,20 @@ export function useHabitSchema(t: (key: string, params?: Record<string, unknown>
 
   type HabitSchema = z.output<typeof schema>
 
+  // Weekday options for WEEKLY frequency selection
+  const weekdays = [
+    { label: t('habits.weekdays.mon'), value: 1 },
+    { label: t('habits.weekdays.tue'), value: 2 },
+    { label: t('habits.weekdays.wed'), value: 3 },
+    { label: t('habits.weekdays.thu'), value: 4 },
+    { label: t('habits.weekdays.fri'), value: 5 },
+    { label: t('habits.weekdays.sat'), value: 6 },
+    { label: t('habits.weekdays.sun'), value: 0 }
+  ]
+
   return {
     schema,
+    weekdays,
     type: {} as HabitSchema
   }
 }

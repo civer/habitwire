@@ -12,7 +12,7 @@ const { data: categories } = await useFetch<CategoryResponse[]>('/api/v1/categor
 const { data: userData } = await useFetch<UserResponse>('/api/v1/auth/me')
 const enableNotes = computed(() => userData.value?.user?.settings?.enableNotes ?? false)
 
-const { schema } = useHabitSchema(t)
+const { schema, weekdays } = useHabitSchema(t)
 type Schema = HabitFormSchema
 
 const state = reactive({
@@ -35,16 +35,6 @@ const state = reactive({
 watch(() => state.habit_selection, (selection) => {
   state.habit_type = selection === 'TARGET' ? 'TARGET' : 'SIMPLE'
 })
-
-const weekdays = computed(() => [
-  { label: t('habits.weekdays.mon'), value: 1 },
-  { label: t('habits.weekdays.tue'), value: 2 },
-  { label: t('habits.weekdays.wed'), value: 3 },
-  { label: t('habits.weekdays.thu'), value: 4 },
-  { label: t('habits.weekdays.fri'), value: 5 },
-  { label: t('habits.weekdays.sat'), value: 6 },
-  { label: t('habits.weekdays.sun'), value: 0 }
-])
 
 const { habitIcons } = useIcons()
 const { presetColors } = useColors()

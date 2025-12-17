@@ -1,42 +1,9 @@
 <script setup lang="ts">
+import type { HabitWithCheckinsResponse } from '~/types/api'
 import { getErrorMessage } from '~/types/error'
-import { formatDateString } from '~/utils/date'
-
-interface RecentCheckin {
-  id: string
-  date: string
-  value?: number | null
-  skipped: boolean | null
-  notes?: string | null
-}
-
-interface Habit {
-  id: string
-  title: string
-  description?: string | null
-  habit_type?: string
-  frequency_type: string
-  frequency_value?: number | null
-  active_days?: number[] | null
-  target_value?: number | null
-  default_increment?: number | null
-  unit?: string | null
-  color?: string | null
-  icon?: string | null
-  category_id?: string | null
-  current_streak?: number
-  prompt_for_notes?: boolean | null
-  category?: {
-    id: string
-    name: string
-    color?: string | null
-    icon?: string | null
-  } | null
-  recent_checkins?: RecentCheckin[]
-}
 
 const props = defineProps<{
-  habit: Habit
+  habit: HabitWithCheckinsResponse
   allowBackfill?: boolean
   daysToShow?: number
   weekStartsOn?: 'monday' | 'sunday'
@@ -50,7 +17,32 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const toast = useToast()
 
-const today = formatDateString(new Date())
+// Use the habit card composable for all computed state and helpers
+const {
+  today,
+  displayDays,
+  isTargetHabit,
+  targetValue,
+  defaultIncrement,
+  isCustom,
+  currentValue,
+  isCompleted,
+  isSkipped,
+  isTodayActiveDay,
+  progress,
+  frequencyValue,
+  weeklyCompletedCount,
+  getDayStatus,
+  getDayProgress,
+  getDayTooltip,
+  getCheckinValue
+} = useHabitCard({
+  habit: toRef(props, 'habit'),
+  daysToShow: toRef(props, 'daysToShow'),
+  weekStartsOn: toRef(props, 'weekStartsOn')
+})
+
+// Loading state
 const loading = ref(false)
 const loadingDay = ref<string | null>(null)
 
@@ -62,165 +54,7 @@ const modalDate = ref<string>(today)
 const showNoteModal = ref(false)
 const noteModalDate = ref<string>(today)
 
-const isTargetHabit = computed(() => props.habit.habit_type === 'TARGET')
-const targetValue = computed(() => props.habit.target_value ?? null)
-const defaultIncrement = computed(() => props.habit.default_increment ?? null)
-
-// Frequency helpers
-const isWeekly = computed(() => props.habit.frequency_type === 'WEEKLY')
-const isCustom = computed(() => props.habit.frequency_type === 'CUSTOM')
-const activeDays = computed(() => props.habit.active_days || [])
-const frequencyValue = computed(() => props.habit.frequency_value || 1)
-
-// Check if a specific date is an active day for WEEKLY habits
-function isActiveDay(date: string): boolean {
-  if (!isWeekly.value) return true
-  const d = new Date(date)
-  const dayOfWeek = d.getDay() // 0 = Sunday, 1 = Monday, etc.
-  return activeDays.value.includes(dayOfWeek)
-}
-
-// Generate days to display (default 14 on desktop)
-const daysCount = computed(() => props.daysToShow ?? 14)
-const weekStart = computed(() => props.weekStartsOn ?? 'monday')
-
-// Check if a day is the start of a new week (for visual separator)
-function isWeekStart(date: Date): boolean {
-  const dayOfWeek = date.getDay() // 0 = Sunday, 1 = Monday
-  return weekStart.value === 'monday' ? dayOfWeek === 1 : dayOfWeek === 0
-}
-
-const displayDays = computed(() => {
-  const days: { date: string, dayName: string, isToday: boolean, isWeekStart: boolean }[] = []
-  const now = new Date()
-  for (let i = daysCount.value - 1; i >= 0; i--) {
-    const d = new Date(now)
-    d.setDate(d.getDate() - i)
-    const dateStr = formatDateString(d)
-    days.push({
-      date: dateStr,
-      dayName: d.toLocaleDateString(undefined, { weekday: 'short' }),
-      isToday: dateStr === today,
-      isWeekStart: isWeekStart(d) && i !== daysCount.value - 1 // Don't show separator on first day
-    })
-  }
-  return days
-})
-
-// Map checkins by date
-const checkinsByDate = computed(() => {
-  const map = new Map<string, RecentCheckin>()
-  for (const c of props.habit.recent_checkins || []) {
-    map.set(c.date, c)
-  }
-  return map
-})
-
-const todayCheckin = computed(() => checkinsByDate.value.get(today))
-const currentValue = computed(() => todayCheckin.value?.value ?? 0)
-const isCompleted = computed(() => {
-  if (!todayCheckin.value || todayCheckin.value.skipped) return false
-  if (isTargetHabit.value && targetValue.value) {
-    return currentValue.value >= targetValue.value
-  }
-  return true
-})
-const isSkipped = computed(() => todayCheckin.value?.skipped)
-const isTodayActiveDay = computed(() => isActiveDay(today))
-const progress = computed(() => {
-  if (!isTargetHabit.value || !targetValue.value) return 0
-  return Math.min(100, (currentValue.value / targetValue.value) * 100)
-})
-
-function getDayStatus(date: string): 'completed' | 'partial' | 'skipped' | 'inactive' | 'none' {
-  const checkin = checkinsByDate.value.get(date)
-
-  // For WEEKLY habits, check if this day is active
-  if (isWeekly.value && !isActiveDay(date)) {
-    // If there's a checkin on an inactive day, still show it
-    if (checkin && !checkin.skipped) return 'completed'
-    return 'inactive'
-  }
-
-  if (!checkin) return 'none'
-  if (checkin.skipped) return 'skipped'
-  if (isTargetHabit.value && targetValue.value && checkin.value) {
-    if (checkin.value >= targetValue.value) return 'completed'
-    if (checkin.value > 0) return 'partial'
-    return 'none'
-  }
-  return 'completed'
-}
-
-function getDayProgress(date: string): number {
-  if (!isTargetHabit.value || !targetValue.value) return 0
-  const checkin = checkinsByDate.value.get(date)
-  if (!checkin?.value) return 0
-  return Math.min(100, (checkin.value / targetValue.value) * 100)
-}
-
-// For CUSTOM: count completed days in current calendar week
-const weeklyCompletedCount = computed(() => {
-  if (!isCustom.value) return 0
-
-  // Get current week start (Monday or Sunday based on setting)
-  const now = new Date()
-  const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, ...
-
-  // Calculate days since week start
-  let daysSinceWeekStart: number
-  if (weekStart.value === 'monday') {
-    daysSinceWeekStart = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-  } else {
-    daysSinceWeekStart = dayOfWeek
-  }
-
-  // Get start of current week
-  const currentWeekStart = new Date(now)
-  currentWeekStart.setDate(now.getDate() - daysSinceWeekStart)
-  const weekStartStr = formatDateString(currentWeekStart)
-
-  // Count completed days in current week
-  let count = 0
-  for (const day of displayDays.value) {
-    if (day.date >= weekStartStr && day.date <= today) {
-      const status = getDayStatus(day.date)
-      if (status === 'completed') count++
-    }
-  }
-  return count
-})
-
-function getDayTooltip(day: { date: string, dayName: string, isToday: boolean }): string {
-  const status = getDayStatus(day.date)
-  const checkin = checkinsByDate.value.get(day.date)
-  const note = checkin?.notes
-
-  let statusText = ''
-  if (status === 'skipped') {
-    statusText = t('habits.skipped')
-  } else if (status === 'completed') {
-    if (isTargetHabit.value && targetValue.value) {
-      const val = checkin?.value ?? 0
-      statusText = `${val}/${targetValue.value} ✓`
-    } else {
-      statusText = t('habits.completed')
-    }
-  } else if (status === 'partial') {
-    const val = checkin?.value ?? 0
-    statusText = `${val}/${targetValue.value}`
-  }
-
-  // Append note if present
-  if (note && statusText) {
-    return `${statusText} - ${note}`
-  }
-  if (note) {
-    return note
-  }
-  return statusText
-}
-
+// Actions
 async function check(value?: number, date?: string) {
   const targetDate = date || today
   if (date) {
@@ -324,7 +158,6 @@ async function unarchive() {
       method: 'PUT',
       body: { archived: false }
     })
-    // Use refreshNuxtData since component may be unmounted after archive
     await refreshNuxtData()
     toast.add({
       title: t('habits.habitRestored'),
@@ -339,6 +172,7 @@ async function unarchive() {
   }
 }
 
+// Modal helpers
 function openTargetModal(date: string) {
   modalDate.value = date
   showTargetModal.value = true
@@ -349,19 +183,13 @@ function openNoteModal(date: string) {
   showNoteModal.value = true
 }
 
-function getModalCurrentValue(): number {
-  const checkin = checkinsByDate.value.get(modalDate.value)
-  return checkin?.value ?? 0
-}
-
+// Toggle handlers
 function toggleCheck() {
   if (isTargetHabit.value && targetValue.value) {
-    // TARGET habits always open modal (for adding, completing, or resetting)
     openTargetModal(today)
   } else if (isCompleted.value) {
     uncheck()
   } else if (props.enableNotes && props.habit.prompt_for_notes) {
-    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
     openNoteModal(today)
   } else {
     check()
@@ -373,17 +201,14 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
 
   const status = getDayStatus(day.date)
 
-  // For TARGET habits, always open modal (for adding, completing, or resetting)
   if (isTargetHabit.value && targetValue.value) {
     openTargetModal(day.date)
     return
   }
 
-  // Non-TARGET habits
   if (status === 'completed') {
     uncheck(day.date)
   } else if (props.enableNotes && props.habit.prompt_for_notes) {
-    // SIMPLE habit with prompt_for_notes opens modal (only if global notes enabled)
     openNoteModal(day.date)
   } else {
     check(undefined, day.date)
@@ -615,7 +440,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
       :habit-unit="habit.unit"
       :target-value="targetValue"
       :default-increment="defaultIncrement"
-      :current-value="getModalCurrentValue()"
+      :current-value="getCheckinValue(modalDate)"
       :date="modalDate"
       :enable-notes="enableNotes"
       @checked="emit('checked')"

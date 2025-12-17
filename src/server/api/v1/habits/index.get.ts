@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, inArray, asc, desc } from 'drizzle-orm'
+import { eq, and, gte, lte, inArray, desc } from 'drizzle-orm'
 import { db } from '@server/database'
 import { habits, checkins, users } from '@server/database/schema'
 import { calculateCurrentStreak } from '@server/utils/streaks'
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await db.query.habits.findMany({
     where: whereClause,
-    orderBy: asc(habits.title),
+    orderBy: habits.sortOrder,
     with: {
       category: true
     }
