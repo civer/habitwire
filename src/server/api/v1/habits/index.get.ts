@@ -122,7 +122,7 @@ export default defineEventHandler(async (event) => {
       {
         frequencyType: h.frequencyType,
         frequencyValue: h.frequencyValue,
-        activeDays: h.activeDays as number[] | null,
+        activeDays: h.activeDays,
         habitType: h.habitType,
         targetValue: h.targetValue,
         createdAt: h.createdAt
