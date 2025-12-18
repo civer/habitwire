@@ -353,7 +353,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
             </span>
             <!-- Streak badge -->
             <span
-              v-if="habit.current_streak && habit.current_streak > 0"
+              v-if="habit.current_streak && habit.current_streak > 1"
               class="flex-shrink-0 inline-flex items-center gap-0.5 text-xs font-medium text-orange-500 dark:text-orange-400"
               :title="$t('dashboard.streak')"
             >
