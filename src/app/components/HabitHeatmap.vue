@@ -84,8 +84,9 @@ function getValue(checkin: { value: number | null, skipped: boolean } | undefine
   if (checkin.skipped) return -1 // Special value for skipped
 
   if (props.habitType === 'TARGET' && props.targetValue) {
-    // Return actual value for TARGET habits
-    return checkin.value ?? 0
+    // Checkins with value=null (from when habit was SIMPLE) are treated as 100% complete
+    if (checkin.value === null) return props.targetValue
+    return checkin.value
   }
 
   // Simple habit: 1 = completed, 0 = not done
