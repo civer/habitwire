@@ -48,6 +48,8 @@ function isActuallyCompleted(
 
   // Only check target value for TARGET habits
   if (habitType === 'TARGET' && targetValue) {
+    // Checkins with value=null (from when habit was SIMPLE) are treated as 100% complete
+    if (checkin.value === null) return true
     const targetVal = safeParseNumber(targetValue)
     const checkinVal = safeParseNumber(checkin.value)
     return checkinVal >= targetVal

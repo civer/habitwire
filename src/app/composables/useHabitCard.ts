@@ -87,7 +87,9 @@ export function useHabitCard(options: UseHabitCardOptions) {
   function getDayProgress(date: string): number {
     if (!isTargetHabit.value || !targetValue.value) return 0
     const checkin = checkinsByDate.value.get(date)
-    if (!checkin?.value) return 0
+    if (!checkin) return 0
+    // Checkins with value=null (from when habit was SIMPLE) are treated as 100% complete
+    if (checkin.value === null) return 100
     return Math.min(100, (checkin.value / targetValue.value) * 100)
   }
 
@@ -101,7 +103,8 @@ export function useHabitCard(options: UseHabitCardOptions) {
       statusText = t('habits.skipped')
     } else if (status === 'completed') {
       if (isTargetHabit.value && targetValue.value) {
-        const val = checkin?.value ?? 0
+        // Checkins with value=null (from when habit was SIMPLE) show as target/target
+        const val = checkin?.value === null ? targetValue.value : (checkin?.value ?? 0)
         statusText = `${val}/${targetValue.value} ✓`
       } else {
         statusText = t('habits.completed')
