@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.7] - 2025-12-18
+
+### Fixed
+- **iOS Safari zoom** - Input fields no longer auto-zoom on focus (16px minimum font-size)
+- **PWA session persistence** - Session cookie now persists for 30 days, preventing daily logouts when opening the PWA from home screen
+- **Target habit improvements**
+  - Target-value habits can now be skipped (previously only simple habits could be skipped)
+  - Legacy check-ins (value=null) are treated as 100% complete for converted habits
+  - Fixes streak calculation and heatmap display for Simple→Target converted habits
+- Streak badge now only shows for streaks of 2+ days (a streak of 1 is just "completed today")
+- "Skipped" badge now displays inline with other badges (no line break)
+
+### Changed
+- Custom frequency display improved: "1/1×w" → "1/1 (Woche)" / "1/1 (Week)"
+- Target habit modal no longer auto-focuses input on mobile devices (prevents keyboard popup)
+
 ## [0.9.6] - 2025-12-17
 
 ### Added
@@ -158,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database schema may change before 1.0 release (migrations will be provided)
 - Multi-user support planned for future releases
 
+[0.9.7]: https://github.com/civer/habitwire/releases/tag/v0.9.7
 [0.9.6]: https://github.com/civer/habitwire/releases/tag/v0.9.6
 [0.9.5]: https://github.com/civer/habitwire/releases/tag/v0.9.5
 [0.9.4]: https://github.com/civer/habitwire/releases/tag/v0.9.4

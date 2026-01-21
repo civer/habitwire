@@ -24,6 +24,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const toast = useToast()
 
+const valueInput = ref<{ input: HTMLInputElement } | null>(null)
 const loading = ref(false)
 const inputValue = ref<number | null>(null)
 const notes = ref('')
@@ -44,6 +45,15 @@ const formattedDate = computed(() => {
     day: 'numeric',
     month: 'short'
   })
+})
+
+// Autofocus only on desktop (not on touch devices to avoid keyboard popup)
+watch(isOpen, (open) => {
+  if (open && !window.matchMedia('(pointer: coarse)').matches) {
+    nextTick(() => {
+      valueInput.value?.input?.focus()
+    })
+  }
 })
 
 async function addValue() {
@@ -171,11 +181,11 @@ async function check(value: number) {
           <!-- Value input -->
           <div class="flex items-center gap-2">
             <UInput
+              ref="valueInput"
               v-model.number="inputValue"
               type="number"
               :placeholder="defaultIncrement ? `+${defaultIncrement}` : $t('habits.enterValue')"
               class="flex-1"
-              autofocus
               @keyup.enter="addValue"
             />
             <UButton

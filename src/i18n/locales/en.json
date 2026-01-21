@@ -60,6 +60,8 @@
     "timesPerPeriod": "Times per",
     "periodWeek": "Week",
     "periodMonth": "Month",
+    "perWeekShort": "(Week)",
+    "perMonthShort": "(Month)",
     "habitType": "Type",
     "habitTypeSimple": "Simple",
     "habitTypeWithNote": "With note",

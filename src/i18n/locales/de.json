@@ -60,6 +60,8 @@
     "timesPerPeriod": "Mal pro",
     "periodWeek": "Woche",
     "periodMonth": "Monat",
+    "perWeekShort": "(Woche)",
+    "perMonthShort": "(Monat)",
     "habitType": "Art",
     "habitTypeSimple": "Einfach",
     "habitTypeWithNote": "Mit Notiz",

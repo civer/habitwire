@@ -349,11 +349,11 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
               class="flex-shrink-0 text-xs font-medium whitespace-nowrap"
               :class="periodCompletedCount >= frequencyValue ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'"
             >
-              {{ periodCompletedCount }}/{{ frequencyValue }}×{{ frequencyPeriod === 'month' ? $t('habits.periodMonth').charAt(0).toLowerCase() : $t('habits.periodWeek').charAt(0).toLowerCase() }}
+              {{ periodCompletedCount }}/{{ frequencyValue }} {{ frequencyPeriod === 'month' ? $t('habits.perMonthShort') : $t('habits.perWeekShort') }}
             </span>
             <!-- Streak badge -->
             <span
-              v-if="habit.current_streak && habit.current_streak > 0"
+              v-if="habit.current_streak && habit.current_streak > 1"
               class="flex-shrink-0 inline-flex items-center gap-0.5 text-xs font-medium text-orange-500 dark:text-orange-400"
               :title="$t('dashboard.streak')"
             >
@@ -363,14 +363,14 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
               />
               {{ habit.current_streak }}
             </span>
+            <!-- Skipped badge (inline) -->
+            <span
+              v-if="isSkipped"
+              class="flex-shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap"
+            >
+              {{ $t('habits.skipped') }}
+            </span>
           </div>
-
-          <p
-            v-if="isSkipped"
-            class="text-sm text-gray-500"
-          >
-            {{ $t('habits.skipped') }}
-          </p>
         </div>
 
         <!-- Actions (mobile only) -->
@@ -379,7 +379,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
             :items="[[
               { label: $t('habits.edit'), icon: 'i-lucide-pencil', to: `/habits/${habit.id}/edit` },
               { label: isCompleted ? $t('habits.uncheck') : $t('habits.check'), icon: isCompleted ? 'i-lucide-rotate-ccw' : 'i-lucide-check', onSelect: toggleCheck },
-              ...(!isCompleted && !isSkipped && !isTargetHabit ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
+              ...(!isCompleted && !isSkipped ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
               { label: $t('habits.archive'), icon: 'i-lucide-archive', onSelect: archive }
             ]]"
           >
@@ -425,7 +425,7 @@ function toggleDayCheck(day: { date: string, isToday: boolean }) {
           :items="[[
             { label: $t('habits.edit'), icon: 'i-lucide-pencil', to: `/habits/${habit.id}/edit` },
             { label: isCompleted ? $t('habits.uncheck') : $t('habits.check'), icon: isCompleted ? 'i-lucide-rotate-ccw' : 'i-lucide-check', onSelect: toggleCheck },
-            ...(!isCompleted && !isSkipped && !isTargetHabit ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
+            ...(!isCompleted && !isSkipped ? [{ label: $t('habits.skip'), icon: 'i-lucide-forward', onSelect: () => skip() }] : []),
             { label: $t('habits.archive'), icon: 'i-lucide-archive', onSelect: archive }
           ]]"
         >
