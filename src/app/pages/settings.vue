@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core'
 import { getErrorMessage } from '~/types/error'
 import type { UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 const toast = useToast()
+const isNative = Capacitor.isNativePlatform()
 
 const categoryKey = ref(0)
 const apiKeyKey = ref(0)
@@ -155,6 +157,18 @@ function exportData(format: 'json' | 'csv') {
               />
               {{ $t('settings.security') }}
             </button>
+          </li>
+          <li v-if="isNative">
+            <NuxtLink
+              to="/settings/server"
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 block"
+            >
+              <UIcon
+                name="i-lucide-server"
+                class="w-4 h-4 mr-2 inline-block"
+              />
+              {{ $t('serverSettings.title') }}
+            </NuxtLink>
           </li>
         </ul>
       </nav>

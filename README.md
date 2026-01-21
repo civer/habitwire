@@ -14,6 +14,7 @@ Self-hosted, API-first habit tracker with a modern web UI.
   - [Prerequisites](#prerequisites)
   - [Local Setup](#local-setup)
   - [Local Docker Build](#local-docker-build)
+- [Mobile App (Capacitor)](#mobile-app-capacitor)
 - [Tech Stack](#tech-stack)
 - [API Documentation](#api-documentation)
 - [Contributing](#contributing)
@@ -223,6 +224,94 @@ volumes:
 ```bash
 docker compose -f docker-compose.local.yml up --build
 ```
+
+## Mobile App (Capacitor)
+
+> **BETA**: The mobile app is currently in beta. Multi-user support is not yet implemented, so use with caution. Feedback and testing are welcome!
+
+HabitWire can be built as a native iOS/Android app using Capacitor. The mobile app connects to your self-hosted HabitWire server via API key authentication.
+
+### Requirements
+
+- **Node.js 22+** (required for Capacitor 8)
+- **iOS**: macOS with Xcode 15+
+- **Android**: Android Studio 2025.2.1+
+
+### Setup
+
+1. **Build the web assets first**
+   ```bash
+   cd src
+   npm install
+   CAPACITOR_BUILD=true npm run generate
+   ```
+
+2. **Install Capacitor dependencies**
+   ```bash
+   cd ../capacitor
+   npm install
+   ```
+
+3. **Add native platforms**
+   ```bash
+   npx cap add ios      # macOS only
+   npx cap add android
+   ```
+
+4. **Sync web assets to native projects**
+   ```bash
+   npx cap sync
+   ```
+
+5. **Open in IDE**
+   ```bash
+   npx cap open ios     # Opens Xcode
+   npx cap open android # Opens Android Studio
+   ```
+
+### Building Updates
+
+After making changes to the web app:
+
+```bash
+cd src
+CAPACITOR_BUILD=true npm run generate
+cd ../capacitor
+npx cap sync
+```
+
+Or use the helper script:
+```bash
+./scripts/build-capacitor.sh
+```
+
+### Troubleshooting
+
+**"Could not find installation of TypeScript"**
+```bash
+cd capacitor
+npm install -D typescript
+```
+
+**"The web assets directory must contain an index.html file"**
+
+You need to build the Nuxt app first:
+```bash
+cd src
+CAPACITOR_BUILD=true npm run generate
+```
+
+**npm audit vulnerabilities in tar package**
+
+This is a known issue with @capacitor/cli's dependencies. The vulnerability only affects the CLI during development (extracting project templates), not your production app. It's safe to ignore for development purposes.
+
+### How it Works
+
+- The mobile app is a WebView that loads the static Nuxt build
+- Authentication uses API keys instead of session cookies (cross-origin compatible)
+- Server URL and API key are stored securely in device preferences
+- On first launch, users configure their server connection in the setup screen
+- All data stays on your self-hosted server
 
 ## Tech Stack
 

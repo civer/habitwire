@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url'
 import pkg from './package.json'
 
+const isCapacitorBuild = process.env.CAPACITOR_BUILD === 'true'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
@@ -10,8 +12,11 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@nuxtjs/i18n',
     'nuxt-security',
-    '@vite-pwa/nuxt'
+    ...(!isCapacitorBuild ? ['@vite-pwa/nuxt'] : [])
   ],
+
+  // Capacitor needs static generation (no SSR)
+  ssr: !isCapacitorBuild,
 
   devtools: {
     enabled: true
@@ -35,7 +40,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     rateLimitPerMinute: 1000, // RATE_LIMIT_PER_MINUTE from .env
     public: {
-      version: pkg.version
+      version: pkg.version,
+      isCapacitorBuild
     }
   },
 
@@ -200,7 +206,7 @@ The API supports two authentication methods:
         'style-src': ['\'self\'', '\'unsafe-inline\''],
         'img-src': ['\'self\'', 'data:', 'blob:'],
         'font-src': ['\'self\''],
-        'connect-src': ['\'self\''],
+        'connect-src': isCapacitorBuild ? ['\'self\'', 'https:', 'capacitor:', 'http://localhost'] : ['\'self\''],
         'frame-ancestors': ['\'none\'']
       },
       xFrameOptions: 'DENY',

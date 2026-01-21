@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2026-01-21
+
+### Added
+- **Mobile App (BETA)** - Native iOS/Android app using Capacitor
+  - Connect to your self-hosted HabitWire server via API key
+  - Server URL and API key stored securely in device preferences
+  - Setup wizard for initial configuration
+  - Server settings page to change connection or disconnect
+  - Uses native HTTP to bypass CORS restrictions
+  - Requires Capacitor 8 and Node.js 22+
+
+### Fixed
+- **API Key Auth** - `/api/v1/auth/me` endpoint now supports API key authentication (previously only session-based)
+
 ## [0.9.7] - 2025-12-18
 
 ### Fixed
