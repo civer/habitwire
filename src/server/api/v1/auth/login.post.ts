@@ -60,6 +60,8 @@ export default defineEventHandler(async (event) => {
       username: user.username,
       displayName: user.displayName
     }
+  }, {
+    maxAge: 60 * 60 * 24 * 30 // 30 days - persistent cookie for PWA
   })
 
   return {
