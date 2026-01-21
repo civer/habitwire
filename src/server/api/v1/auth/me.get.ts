@@ -15,9 +15,19 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
+  // Support both session auth (web) and API key auth (mobile/external)
+  let userId: string | undefined
 
-  if (!session.user) {
+  // Check for API key auth first (set by auth middleware)
+  if (event.context.userId) {
+    userId = event.context.userId
+  } else {
+    // Fall back to session auth
+    const session = await getUserSession(event)
+    userId = session.user?.id
+  }
+
+  if (!userId) {
     throw createError({
       statusCode: 401,
       message: 'Not authenticated'
@@ -26,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
   // Fetch fresh user data including settings
   const user = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id)
+    where: eq(users.id, userId)
   })
 
   if (!user) {

@@ -37,6 +37,11 @@ docker-compose.local.yml
 tmp/
 temp/
 
+# Capacitor native platforms (generated)
+capacitor/android/
+capacitor/ios/
+capacitor/node_modules/
+
 # Local project folders
 concept/
 

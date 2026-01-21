@@ -186,5 +186,39 @@
     "installDescription": "Zum Startbildschirm hinzufügen für schnellen Zugriff",
     "install": "Installieren",
     "later": "Später"
+  },
+  "setup": {
+    "connectToServer": "Mit Server verbinden",
+    "enterApiKey": "API-Schlüssel eingeben",
+    "serverUrl": "Server-URL",
+    "serverUrlPlaceholder": "https://habits.example.com",
+    "serverUrlHint": "Deine HabitWire Server-Adresse",
+    "serverUrlRequired": "Server-URL ist erforderlich",
+    "serverUrlInvalid": "Bitte gib eine gültige URL ein",
+    "httpsRequired": "HTTPS ist erforderlich (oder localhost für Entwicklung)",
+    "testConnection": "Verbindung testen",
+    "connectionSuccess": "Verbindung erfolgreich",
+    "connectionFailed": "Verbindung fehlgeschlagen",
+    "connectionFailedDescription": "Konnte keine Verbindung zum Server herstellen. Bitte überprüfe die URL.",
+    "apiKey": "API-Schlüssel",
+    "apiKeyPlaceholder": "hw_xxxxx...",
+    "apiKeyHint": "Erstelle einen API-Schlüssel unter Einstellungen > API-Schlüssel auf deinem Server",
+    "apiKeyRequired": "API-Schlüssel ist erforderlich",
+    "apiKeyInvalidFormat": "API-Schlüssel muss mit hw_ beginnen",
+    "apiKeyInvalid": "Ungültiger API-Schlüssel",
+    "apiKeyInvalidDescription": "Der API-Schlüssel ist ungültig. Bitte überprüfe ihn und versuche es erneut.",
+    "connect": "Verbinden",
+    "setupComplete": "Einrichtung abgeschlossen"
+  },
+  "serverSettings": {
+    "title": "Server",
+    "change": "Ändern",
+    "serverUrlUpdated": "Server-URL aktualisiert",
+    "apiKeyUpdated": "API-Schlüssel aktualisiert",
+    "apiKeyNotValidForServer": "Der aktuelle API-Schlüssel ist für diesen Server ungültig",
+    "disconnect": "Trennen",
+    "disconnectDescription": "Serververbindung entfernen und zur Einrichtung zurückkehren",
+    "disconnectConfirmTitle": "Vom Server trennen?",
+    "disconnectConfirmDescription": "Du wirst abgemeldet und musst die Verbindung erneut einrichten."
   }
 }

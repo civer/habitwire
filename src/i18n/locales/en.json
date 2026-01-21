@@ -186,5 +186,39 @@
     "installDescription": "Add to your home screen for quick access",
     "install": "Install",
     "later": "Later"
+  },
+  "setup": {
+    "connectToServer": "Connect to your server",
+    "enterApiKey": "Enter your API key",
+    "serverUrl": "Server URL",
+    "serverUrlPlaceholder": "https://habits.example.com",
+    "serverUrlHint": "Your HabitWire server address",
+    "serverUrlRequired": "Server URL is required",
+    "serverUrlInvalid": "Please enter a valid URL",
+    "httpsRequired": "HTTPS is required (or localhost for development)",
+    "testConnection": "Test connection",
+    "connectionSuccess": "Connection successful",
+    "connectionFailed": "Connection failed",
+    "connectionFailedDescription": "Could not connect to the server. Please check the URL and try again.",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "hw_xxxxx...",
+    "apiKeyHint": "Create an API key in Settings > API Keys on your server",
+    "apiKeyRequired": "API key is required",
+    "apiKeyInvalidFormat": "API key must start with hw_",
+    "apiKeyInvalid": "Invalid API key",
+    "apiKeyInvalidDescription": "The API key is not valid. Please check and try again.",
+    "connect": "Connect",
+    "setupComplete": "Setup complete"
+  },
+  "serverSettings": {
+    "title": "Server",
+    "change": "Change",
+    "serverUrlUpdated": "Server URL updated",
+    "apiKeyUpdated": "API key updated",
+    "apiKeyNotValidForServer": "The current API key is not valid for this server",
+    "disconnect": "Disconnect",
+    "disconnectDescription": "Remove the server connection and return to setup",
+    "disconnectConfirmTitle": "Disconnect from server?",
+    "disconnectConfirmDescription": "You will be logged out and need to set up the connection again."
   }
 }
