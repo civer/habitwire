@@ -7,7 +7,9 @@ export default defineEventHandler(async (event) => {
   const path = getRequestURL(event).pathname
 
   // Only protect /api/v1/* routes (except public endpoints)
-  if (!path.startsWith('/api/v1/') || path.startsWith('/api/v1/auth/') || path === '/api/v1/health') {
+  // Note: /api/v1/auth/me requires auth (supports both session and API key)
+  const isPublicAuthRoute = path.startsWith('/api/v1/auth/') && path !== '/api/v1/auth/me'
+  if (!path.startsWith('/api/v1/') || isPublicAuthRoute || path === '/api/v1/health') {
     return
   }
 
