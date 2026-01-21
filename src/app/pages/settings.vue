@@ -5,11 +5,16 @@ import type { UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 const toast = useToast()
-const isNative = Capacitor.isNativePlatform()
+
+// Check if running in Capacitor native app
+const isNative = ref(false)
+onMounted(() => {
+  isNative.value = Capacitor.isNativePlatform()
+})
 
 const categoryKey = ref(0)
 const apiKeyKey = ref(0)
-const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'security'>('general')
+const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'security' | 'server'>('general')
 
 const { data: userData, refresh: refreshUser } = await useFetch<UserResponse>('/api/v1/auth/me')
 
@@ -159,16 +164,17 @@ function exportData(format: 'json' | 'csv') {
             </button>
           </li>
           <li v-if="isNative">
-            <NuxtLink
-              to="/settings/server"
-              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 block"
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+              :class="activeSection === 'server' ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              @click="activeSection = 'server'"
             >
               <UIcon
                 name="i-lucide-server"
                 class="w-4 h-4 mr-2 inline-block"
               />
               {{ $t('serverSettings.title') }}
-            </NuxtLink>
+            </button>
           </li>
         </ul>
       </nav>
@@ -371,6 +377,9 @@ function exportData(format: 'json' | 'csv') {
 
           <PasswordChangeForm />
         </UCard>
+
+        <!-- Server Settings Section (Capacitor only) -->
+        <ServerSettings v-if="activeSection === 'server'" />
       </div>
     </div>
   </div>
