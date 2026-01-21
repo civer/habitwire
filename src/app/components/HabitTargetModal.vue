@@ -24,7 +24,6 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const toast = useToast()
 
-const valueInput = ref<{ input: HTMLInputElement } | null>(null)
 const loading = ref(false)
 const inputValue = ref<number | null>(null)
 const notes = ref('')
@@ -47,13 +46,20 @@ const formattedDate = computed(() => {
   })
 })
 
-// Autofocus only on desktop (not on touch devices to avoid keyboard popup)
-watch(isOpen, (open) => {
-  if (open && !window.matchMedia('(pointer: coarse)').matches) {
-    nextTick(() => {
-      valueInput.value?.input?.focus()
-    })
+// Detect touch device for conditional autofocus
+const isTouchDevice = ref(false)
+onMounted(() => {
+  isTouchDevice.value = window.matchMedia('(pointer: coarse)').matches
+})
+
+// Prevent modal autofocus on touch devices (prevents keyboard popup)
+const modalContentProps = computed(() => {
+  if (isTouchDevice.value) {
+    return {
+      onOpenAutoFocus: (e: Event) => e.preventDefault()
+    }
   }
+  return {}
 })
 
 async function addValue() {
@@ -135,7 +141,10 @@ async function check(value: number) {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen">
+  <UModal
+    v-model:open="isOpen"
+    :content="modalContentProps"
+  >
     <template #content>
       <UCard>
         <template #header>
@@ -181,7 +190,6 @@ async function check(value: number) {
           <!-- Value input -->
           <div class="flex items-center gap-2">
             <UInput
-              ref="valueInput"
               v-model.number="inputValue"
               type="number"
               :placeholder="defaultIncrement ? `+${defaultIncrement}` : $t('habits.enterValue')"
