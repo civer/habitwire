@@ -1,5 +1,6 @@
 import { getHabitOrThrow } from '@server/utils/db-helpers'
 import { mapHabitToResponse } from '@server/utils/response-mappers'
+import { validateUuidParam } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -24,7 +25,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'habit ID')
   const habit = await getHabitOrThrow(event, id)
 
   return mapHabitToResponse(habit)

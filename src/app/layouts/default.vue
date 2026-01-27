@@ -22,23 +22,37 @@ async function logout() {
   }
 }
 
-const userMenuItems = computed(() => [
-  [{
-    label: user.value?.user?.username || '',
-    slot: 'account',
-    disabled: true
-  }],
-  [{
-    label: t('common.settings'),
-    icon: 'i-lucide-settings',
-    to: '/settings'
-  }],
-  [{
+const userMenuItems = computed(() => {
+  const items: { label: string, icon?: string, to?: string, onSelect?: () => void, slot?: string, disabled?: boolean }[][] = [
+    [{
+      label: user.value?.user?.username || '',
+      slot: 'account',
+      disabled: true
+    }],
+    [{
+      label: t('common.settings'),
+      icon: 'i-lucide-settings',
+      to: '/settings'
+    }]
+  ]
+
+  // Add admin link if user is admin
+  if (user.value?.user?.is_admin) {
+    items.push([{
+      label: t('admin.title'),
+      icon: 'i-lucide-shield',
+      to: '/admin'
+    }])
+  }
+
+  items.push([{
     label: t('auth.logout'),
     icon: 'i-lucide-log-out',
     onSelect: logout
-  }]
-])
+  }])
+
+  return items
+})
 </script>
 
 <template>

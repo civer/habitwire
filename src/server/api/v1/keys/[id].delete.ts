@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@server/database'
 import { apiKeys } from '@server/database/schema'
+import { validateUuidParam } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -20,14 +21,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
-  const id = getRouterParam(event, 'id')
-
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      message: 'Key ID is required'
-    })
-  }
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'API key ID')
 
   const existing = await db.query.apiKeys.findFirst({
     where: and(eq(apiKeys.id, id), eq(apiKeys.userId, userId))

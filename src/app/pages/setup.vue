@@ -10,7 +10,9 @@ const { t } = useI18n()
 const router = useRouter()
 const toast = useToast()
 const runtimeConfig = useRuntimeConfig()
-const { isNative, saveConfig, testConnection, validateApiKey } = useCapacitorApi()
+const { isNative, saveConfig, testConnection, validateApiKey, isHostedMode } = useCapacitorApi()
+
+const hostedMode = isHostedMode()
 
 // Redirect to login if not in Capacitor
 if (!isNative) {
@@ -102,7 +104,6 @@ function goBack() {
 
 <template>
   <UApp>
-    <UNotifications />
     <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
       <UCard class="w-full max-w-sm">
         <template #header>
@@ -209,9 +210,21 @@ function goBack() {
         </UForm>
 
         <template #footer>
-          <div class="flex flex-col items-center gap-2">
-            <LanguageSwitcher />
-            <span class="text-xs text-gray-400 dark:text-gray-500">v{{ runtimeConfig.public.version }}</span>
+          <div class="flex flex-col items-center gap-3">
+            <!-- Back to hosted login button (only in hosted mode) -->
+            <button
+              v-if="hostedMode"
+              type="button"
+              class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              @click="navigateTo('/native-login')"
+            >
+              {{ $t('setup.backToHostedLogin') }}
+            </button>
+
+            <div class="flex items-center gap-3">
+              <LanguageSwitcher />
+              <span class="text-xs text-gray-400 dark:text-gray-500">v{{ runtimeConfig.public.version }}</span>
+            </div>
           </div>
         </template>
       </UCard>

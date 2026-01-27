@@ -64,6 +64,20 @@
       "when": 1765982293350,
       "tag": "0008_daffy_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1769177290445,
+      "tag": "0009_nasty_yellow_claw",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1769443180658,
+      "tag": "0010_panoramic_scarecrow",
+      "breakpoints": true
     }
   ]
 }

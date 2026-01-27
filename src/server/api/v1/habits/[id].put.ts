@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@server/database'
 import { habits } from '@server/database/schema'
-import { updateHabitSchema, validateBody } from '@server/utils/validation'
+import { updateHabitSchema, validateBody, validateUuidParam } from '@server/utils/validation'
 import { getHabitOrThrow, validateCategoryOwnership } from '@server/utils/db-helpers'
 import { mapHabitToResponse } from '@server/utils/response-mappers'
 
@@ -23,7 +23,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'habit ID')
 
   const existing = await getHabitOrThrow(event, id)
   const body = await validateBody(event, updateHabitSchema)

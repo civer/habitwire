@@ -16,9 +16,10 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
+  // Use userId from middleware context (works for both session and API key auth)
+  const userId = event.context.userId
 
-  if (!session.user?.id) {
+  if (!userId) {
     throw createError({
       statusCode: 401,
       message: 'Unauthorized'
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   // Get current user settings
   const user = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id)
+    where: eq(users.id, userId)
   })
 
   if (!user) {
@@ -50,7 +51,7 @@ export default defineEventHandler(async (event) => {
   // Update user settings
   await db.update(users)
     .set({ settings: newSettings })
-    .where(eq(users.id, session.user.id))
+    .where(eq(users.id, userId))
 
   return { settings: newSettings }
 })
