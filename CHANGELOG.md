@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-01-27
+
+### Added
+- **Multi-User Support** - Full user management system
+  - Admin panel for managing users (create, edit, delete)
+  - Role-based access control (admin/user roles)
+  - Audit logging for admin actions
+  - System settings management via admin UI
+
+- **Authentication Improvements**
+  - User registration with optional email verification
+  - Magic link authentication (passwordless login via email)
+  - Password reset via email
+  - SMTP configuration in admin panel
+  - Configurable auth methods (password, magic link, or both)
+
+- **Mobile App Hosted Mode**
+  - Hosted mode for App Store builds (`NUXT_PUBLIC_HOSTED_MODE`)
+  - Native login page with automatic API key generation
+  - "Use your own server" option for self-hosted users
+
+- **Settings Enhancements**
+  - About page with app info, version, and GitHub link
+  - Profile management (display name, email)
+  - Buy Me A Coffee support link
+
+- **Documentation**
+  - README badges (Docker Hub, Buy Me A Coffee, License)
+  - Updated features list and roadmap
+  - Hosted mode build instructions
+
 ## [0.9.9] - 2026-01-21
 
 ### Changed
