@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@server/database'
 import { categories } from '@server/database/schema'
-import { updateCategorySchema, validateBody } from '@server/utils/validation'
+import { updateCategorySchema, validateBody, validateUuidParam } from '@server/utils/validation'
 import { getCategoryOrThrow } from '@server/utils/db-helpers'
 
 defineRouteMeta({
@@ -36,7 +36,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'category ID')
   const existing = await getCategoryOrThrow(event, id)
   const body = await validateBody(event, updateCategorySchema)
 

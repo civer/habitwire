@@ -32,9 +32,10 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
+  // Use userId from middleware context (works for both session and API key auth)
+  const userId = event.context.userId
 
-  if (!session.user?.id) {
+  if (!userId) {
     throw createError({
       statusCode: 401,
       message: 'Unauthorized'
@@ -44,13 +45,21 @@ export default defineEventHandler(async (event) => {
   const body = await validateBody(event, passwordChangeSchema)
 
   const user = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id)
+    where: eq(users.id, userId)
   })
 
   if (!user) {
     throw createError({
       statusCode: 404,
       message: 'User not found'
+    })
+  }
+
+  // Check if user has a password set
+  if (!user.passwordHash) {
+    throw createError({
+      statusCode: 400,
+      message: 'User does not have a password set'
     })
   }
 
@@ -70,7 +79,23 @@ export default defineEventHandler(async (event) => {
       passwordHash: newHash,
       updatedAt: new Date()
     })
-    .where(eq(users.id, session.user.id))
+    .where(eq(users.id, userId))
+
+  // Refresh session after password change (only for web sessions, not API key auth)
+  const session = await getUserSession(event)
+  if (session.user) {
+    await clearUserSession(event)
+    await setUserSession(event, {
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        isAdmin: user.isAdmin
+      }
+    }, {
+      maxAge: 60 * 60 * 24 * 30 // 30 days
+    })
+  }
 
   return { success: true }
 })

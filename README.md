@@ -2,6 +2,10 @@
 
 Self-hosted, API-first habit tracker with a modern web UI.
 
+[![Docker Hub](https://img.shields.io/docker/v/civer/habitwire?label=Docker%20Hub&logo=docker)](https://hub.docker.com/r/civer/habitwire)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/civer)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Table of Contents
 
 - [Features](#features)
@@ -31,13 +35,18 @@ Self-hosted, API-first habit tracker with a modern web UI.
 - **Categories** - Organize habits with custom colors and icons
 - **GitHub-style Heatmap** - Visualize your progress over time
 - **Statistics** - Completion rates, streaks, and detailed analytics per habit
+- **Multi-user Support** - Admin panel for user management with role-based access
+- **Flexible Authentication** - Password login, magic links, or both
+- **User Registration** - Optional self-registration with email verification
 - **REST API** - Full API access with OpenAPI documentation
 - **API Key Auth** - Secure API access for external clients and automations
+- **Native Mobile Apps** - iOS and Android apps via Capacitor (Beta)
 - **Multi-language** - English and German (i18n ready for more)
 - **Dark Mode** - Built-in dark theme support
 - **Mobile-friendly** - Responsive design for all devices
 - **PWA Support** - Install as app on mobile and desktop
 - **Data Export** - Export habits and check-ins as JSON or CSV
+- **Audit Logging** - Track admin actions for security monitoring
 - **Self-hosted** - Your data stays on your server
 
 ## Roadmap
@@ -48,9 +57,7 @@ Self-hosted, API-first habit tracker with a modern web UI.
 - [ ] Webhook notifications
 - [ ] Recurring reminders
 - [ ] API key expiration & rotation
-- [ ] Audit logging
-- [ ] Structured JSON logging
-- [ ] Multi-user support with invitations
+- [ ] User invitations via email
 
 ## Screenshots
 
@@ -227,15 +234,39 @@ docker compose -f docker-compose.local.yml up --build
 
 ## Mobile App (Capacitor)
 
-> **BETA**: The mobile app is currently in beta. Multi-user support is not yet implemented, so use with caution. Feedback and testing are welcome!
+> **BETA**: The mobile app is currently in beta. Feedback and testing are welcome!
 
-HabitWire can be built as a native iOS/Android app using Capacitor. The mobile app connects to your self-hosted HabitWire server via API key authentication.
+HabitWire can be built as a native iOS/Android app using Capacitor. The app supports two modes:
+
+- **Self-Hosted Mode** (default): Users enter their own server URL and API key
+- **Hosted Mode**: Pre-configured to connect to a hosted HabitWire instance (e.g., for App Store distribution)
 
 ### Requirements
 
 - **Node.js 22+** (required for Capacitor 8)
 - **iOS**: macOS with Xcode 15+
 - **Android**: Android Studio 2025.2.1+
+
+### Build Modes
+
+**Self-Hosted Build** (default):
+```bash
+cd src
+CAPACITOR_BUILD=true npm run generate
+cd ../capacitor && npx cap sync
+```
+Users will see a setup screen to enter their server URL and API key.
+
+**Hosted Build** (for App Store):
+```bash
+cd src
+CAPACITOR_BUILD=true \
+NUXT_PUBLIC_HOSTED_MODE=true \
+NUXT_PUBLIC_HOSTED_URL=https://habitwire.app \
+npm run generate
+cd ../capacitor && npx cap sync
+```
+Users will see a login screen for the pre-configured server, with an option to use their own server.
 
 ### Setup
 
@@ -310,7 +341,8 @@ This is a known issue with @capacitor/cli's dependencies. The vulnerability only
 - The mobile app is a WebView that loads the static Nuxt build
 - Authentication uses API keys instead of session cookies (cross-origin compatible)
 - Server URL and API key are stored securely in device preferences
-- On first launch, users configure their server connection in the setup screen
+- **Self-Hosted Mode**: Users configure their server connection in the setup screen
+- **Hosted Mode**: Users log in with username/password, an API key is created automatically
 - All data stays on your self-hosted server
 
 ## Tech Stack

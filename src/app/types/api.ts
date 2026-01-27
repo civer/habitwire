@@ -54,6 +54,10 @@ export interface UserResponse {
   user: {
     id: string
     username: string
+    email?: string | null
+    email_verified?: boolean
+    is_admin?: boolean
+    display_name?: string | null
     settings: {
       allowBackfill?: boolean
       groupByCategory?: boolean

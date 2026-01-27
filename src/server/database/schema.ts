@@ -4,7 +4,10 @@ import { relations } from 'drizzle-orm'
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   username: text('username').unique().notNull(),
-  passwordHash: text('password_hash').notNull(),
+  passwordHash: text('password_hash'), // Optional for magic-link-only users
+  email: text('email').unique(),
+  emailVerified: boolean('email_verified').default(false),
+  isAdmin: boolean('is_admin').default(false),
   displayName: text('display_name'),
   settings: jsonb('settings').$type<{
     allowBackfill?: boolean
@@ -85,11 +88,58 @@ export const config = pgTable('config', {
   createdAt: timestamp('created_at').defaultNow()
 })
 
+export const systemSettings = pgTable('system_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow()
+})
+
+export const magicLinkTokens = pgTable('magic_link_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').defaultNow()
+}, table => [
+  index('idx_magic_link_email').on(table.email),
+  index('idx_magic_link_hash').on(table.tokenHash)
+])
+
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').defaultNow()
+}, table => [
+  index('idx_password_reset_user').on(table.userId),
+  index('idx_password_reset_hash').on(table.tokenHash)
+])
+
+export const adminAuditLogs = pgTable('admin_audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  adminId: uuid('admin_id').references(() => users.id, { onDelete: 'set null' }),
+  action: text('action').notNull(), // e.g., 'user.create', 'user.delete', 'settings.update'
+  targetType: text('target_type'), // e.g., 'user', 'settings'
+  targetId: text('target_id'), // ID of affected resource (if applicable)
+  details: jsonb('details').$type<Record<string, unknown>>(), // Additional context
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').defaultNow()
+}, table => [
+  index('idx_audit_admin').on(table.adminId),
+  index('idx_audit_action').on(table.action),
+  index('idx_audit_created').on(table.createdAt)
+])
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   habits: many(habits),
   categories: many(categories),
-  apiKeys: many(apiKeys)
+  apiKeys: many(apiKeys),
+  passwordResetTokens: many(passwordResetTokens)
 }))
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -122,6 +172,13 @@ export const checkinsRelations = relations(checkins, ({ one }) => ({
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
   user: one(users, {
     fields: [apiKeys.userId],
+    references: [users.id]
+  })
+}))
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResetTokens.userId],
     references: [users.id]
   })
 }))
