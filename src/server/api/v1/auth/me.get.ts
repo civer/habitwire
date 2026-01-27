@@ -51,6 +51,9 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       username: user.username,
       display_name: user.displayName,
+      email: user.email,
+      email_verified: user.emailVerified,
+      is_admin: user.isAdmin,
       settings: user.settings || {}
     }
   }

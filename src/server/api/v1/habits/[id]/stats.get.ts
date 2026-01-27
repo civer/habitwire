@@ -3,7 +3,7 @@ import { db } from '@server/database'
 import { checkins, users } from '@server/database/schema'
 import { calculateStreakStats } from '@server/utils/streaks'
 import { getHabitOrThrow } from '@server/utils/db-helpers'
-import { validateQuery, statsQuerySchema } from '@server/utils/validation'
+import { validateQuery, statsQuerySchema, validateUuidParam } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -36,7 +36,7 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'habit ID')
   const { today: clientToday } = validateQuery(event, statsQuerySchema)
   const habit = await getHabitOrThrow(event, id)
 

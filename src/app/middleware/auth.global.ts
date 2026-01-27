@@ -5,29 +5,42 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   // Capacitor native app uses API key auth
   if (isNative) {
-    // Skip auth check for setup page
-    if (to.path === '/setup') {
-      return
-    }
-
-    const { isConfigured, isLoaded, loadConfig } = useCapacitorApi()
+    const { isConfigured, isLoaded, loadConfig, isHostedMode } = useCapacitorApi()
 
     // Ensure config is loaded
     if (!isLoaded.value) {
       await loadConfig()
     }
 
-    // Redirect to setup if not configured
-    if (!isConfigured.value) {
-      return navigateTo('/setup')
+    const hostedMode = isHostedMode()
+
+    if (hostedMode) {
+      // Hosted Mode: Login page instead of setup
+      if (to.path === '/native-login' || to.path === '/setup') {
+        return
+      }
+
+      if (!isConfigured.value) {
+        return navigateTo('/native-login')
+      }
+    } else {
+      // Self-Hosted Mode: setup page as before
+      if (to.path === '/setup') {
+        return
+      }
+
+      if (!isConfigured.value) {
+        return navigateTo('/setup')
+      }
     }
 
     return
   }
 
   // Web app uses session-based auth
-  // Skip auth check for login page
-  if (to.path === '/login') {
+  // Skip auth check for public auth pages
+  const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/magic-link']
+  if (publicPaths.includes(to.path)) {
     return
   }
 

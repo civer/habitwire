@@ -5,6 +5,7 @@ import type { UserResponse } from '~/types/api'
 
 const { t } = useI18n()
 const toast = useToast()
+const runtimeConfig = useRuntimeConfig()
 
 // Check if running in Capacitor native app
 const isNative = ref(false)
@@ -14,9 +15,52 @@ onMounted(() => {
 
 const categoryKey = ref(0)
 const apiKeyKey = ref(0)
-const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'security' | 'server'>('general')
+const activeSection = ref<'general' | 'display' | 'data' | 'categories' | 'api' | 'account' | 'security' | 'server' | 'about'>('general')
 
 const { data: userData, refresh: refreshUser } = await useFetch<UserResponse>('/api/v1/auth/me')
+
+// Profile state
+const profileEmail = ref('')
+const profileDisplayName = ref('')
+const savingProfile = ref(false)
+
+// Sync profile from server data
+watch(
+  () => userData.value?.user,
+  (user) => {
+    profileEmail.value = user?.email ?? ''
+    profileDisplayName.value = user?.display_name ?? ''
+  },
+  { immediate: true }
+)
+
+async function updateProfile() {
+  savingProfile.value = true
+  try {
+    await $fetch('/api/v1/auth/profile', {
+      method: 'PUT',
+      body: {
+        email: profileEmail.value || null,
+        display_name: profileDisplayName.value || null
+      }
+    })
+    await refreshUser()
+    toast.add({
+      title: t('settings.profileUpdated'),
+      color: 'success'
+    })
+  } catch (error) {
+    toast.add({
+      title: t('common.error'),
+      description: getErrorMessage(error),
+      color: 'error'
+    })
+    // Revert on error
+    await refreshUser()
+  } finally {
+    savingProfile.value = false
+  }
+}
 
 // Local refs for settings (synced from server)
 const allowBackfill = ref(false)
@@ -153,6 +197,19 @@ function exportData(format: 'json' | 'csv') {
           <li>
             <button
               class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+              :class="activeSection === 'account' ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              @click="activeSection = 'account'"
+            >
+              <UIcon
+                name="i-lucide-user"
+                class="w-4 h-4 mr-2 inline-block"
+              />
+              {{ $t('settings.account') }}
+            </button>
+          </li>
+          <li>
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
               :class="activeSection === 'security' ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
               @click="activeSection = 'security'"
             >
@@ -174,6 +231,19 @@ function exportData(format: 'json' | 'csv') {
                 class="w-4 h-4 mr-2 inline-block"
               />
               {{ $t('serverSettings.title') }}
+            </button>
+          </li>
+          <li>
+            <button
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+              :class="activeSection === 'about' ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
+              @click="activeSection = 'about'"
+            >
+              <UIcon
+                name="i-lucide-info"
+                class="w-4 h-4 mr-2 inline-block"
+              />
+              {{ $t('about.title') }}
             </button>
           </li>
         </ul>
@@ -367,6 +437,47 @@ function exportData(format: 'json' | 'csv') {
           <ApiKeyList :key="apiKeyKey" />
         </UCard>
 
+        <!-- Account Section -->
+        <UCard v-if="activeSection === 'account'">
+          <template #header>
+            <h2 class="text-lg font-semibold">
+              {{ $t('settings.account') }}
+            </h2>
+          </template>
+
+          <div class="space-y-4">
+            <UFormField
+              :label="$t('admin.displayName')"
+            >
+              <UInput
+                v-model="profileDisplayName"
+                class="w-full"
+                :placeholder="userData?.user?.username"
+              />
+            </UFormField>
+
+            <UFormField
+              :label="$t('admin.email')"
+              :description="$t('auth.emailOptional')"
+            >
+              <UInput
+                v-model="profileEmail"
+                type="email"
+                class="w-full"
+              />
+            </UFormField>
+
+            <div class="flex justify-end">
+              <UButton
+                :loading="savingProfile"
+                @click="updateProfile"
+              >
+                {{ $t('common.save') }}
+              </UButton>
+            </div>
+          </div>
+        </UCard>
+
         <!-- Security Section -->
         <UCard v-if="activeSection === 'security'">
           <template #header>
@@ -380,6 +491,100 @@ function exportData(format: 'json' | 'csv') {
 
         <!-- Server Settings Section (Capacitor only) -->
         <ServerSettings v-if="activeSection === 'server'" />
+
+        <!-- About Section -->
+        <UCard v-if="activeSection === 'about'">
+          <template #header>
+            <h2 class="text-lg font-semibold">
+              {{ $t('about.title') }}
+            </h2>
+          </template>
+
+          <div class="space-y-6">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+                <UIcon
+                  name="i-lucide-check-circle"
+                  class="w-8 h-8 text-primary"
+                />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold">
+                  {{ $t('app.name') }}
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  v{{ runtimeConfig.public.version }}
+                </p>
+              </div>
+            </div>
+
+            <p class="text-gray-600 dark:text-gray-300">
+              {{ $t('about.description') }}
+            </p>
+
+            <div class="space-y-3">
+              <h4 class="font-medium">
+                {{ $t('about.features') }}
+              </h4>
+              <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                <li class="flex items-start gap-2">
+                  <UIcon
+                    name="i-lucide-check"
+                    class="w-4 h-4 text-primary mt-0.5 flex-shrink-0"
+                  />
+                  {{ $t('about.feature1') }}
+                </li>
+                <li class="flex items-start gap-2">
+                  <UIcon
+                    name="i-lucide-check"
+                    class="w-4 h-4 text-primary mt-0.5 flex-shrink-0"
+                  />
+                  {{ $t('about.feature2') }}
+                </li>
+                <li class="flex items-start gap-2">
+                  <UIcon
+                    name="i-lucide-check"
+                    class="w-4 h-4 text-primary mt-0.5 flex-shrink-0"
+                  />
+                  {{ $t('about.feature3') }}
+                </li>
+                <li class="flex items-start gap-2">
+                  <UIcon
+                    name="i-lucide-check"
+                    class="w-4 h-4 text-primary mt-0.5 flex-shrink-0"
+                  />
+                  {{ $t('about.feature4') }}
+                </li>
+              </ul>
+            </div>
+
+            <USeparator />
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <UButton
+                variant="outline"
+                icon="i-simple-icons-github"
+                to="https://github.com/civer/habitwire"
+                target="_blank"
+              >
+                {{ $t('about.viewOnGithub') }}
+              </UButton>
+              <UButton
+                variant="outline"
+                color="warning"
+                icon="i-lucide-coffee"
+                to="https://buymeacoffee.com/civer"
+                target="_blank"
+              >
+                {{ $t('about.buyMeACoffee') }}
+              </UButton>
+            </div>
+
+            <p class="text-xs text-gray-400 dark:text-gray-500">
+              {{ $t('about.license') }}
+            </p>
+          </div>
+        </UCard>
       </div>
     </div>
   </div>

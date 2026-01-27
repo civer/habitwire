@@ -1,4 +1,5 @@
 import { getCategoryOrThrow } from '@server/utils/db-helpers'
+import { validateUuidParam } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -17,7 +18,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'category ID')
   const category = await getCategoryOrThrow(event, id)
 
   return {

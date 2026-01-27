@@ -1,7 +1,7 @@
-import { sql, eq } from 'drizzle-orm'
+import { sql, eq, lt } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { db } from '@server/database'
-import { users, config } from '@server/database/schema'
+import { users, config, magicLinkTokens, passwordResetTokens } from '@server/database/schema'
 
 const CONFIG_KEY_INITIALIZED = 'system.initialized'
 
@@ -104,6 +104,47 @@ async function runMigrations(): Promise<void> {
 }
 
 /**
+ * Migrate existing users to admin (for upgrades from single-user to multi-user)
+ * Makes the first (oldest) user an admin if no admin exists yet
+ */
+async function migrateExistingUsersToAdmin(): Promise<void> {
+  // Check if already an admin exists
+  const anyAdmin = await db.query.users.findFirst({
+    where: eq(users.isAdmin, true)
+  })
+  if (anyAdmin) return
+
+  // First user (oldest) becomes admin
+  const firstUser = await db.query.users.findFirst({
+    orderBy: (users, { asc }) => asc(users.createdAt)
+  })
+  if (firstUser) {
+    await db.update(users)
+      .set({ isAdmin: true })
+      .where(eq(users.id, firstUser.id))
+    console.log(`[init] Migrated "${firstUser.username}" to admin`)
+  }
+}
+
+/**
+ * Clean up expired tokens
+ */
+async function cleanupExpiredTokens(): Promise<void> {
+  const now = new Date()
+  const deletedMagicLinks = await db.delete(magicLinkTokens)
+    .where(lt(magicLinkTokens.expiresAt, now))
+    .returning()
+  const deletedPasswordResets = await db.delete(passwordResetTokens)
+    .where(lt(passwordResetTokens.expiresAt, now))
+    .returning()
+
+  const total = deletedMagicLinks.length + deletedPasswordResets.length
+  if (total > 0) {
+    console.log(`[init] Cleaned up ${total} expired token(s)`)
+  }
+}
+
+/**
  * Seed initial admin user if not already initialized
  */
 async function seedInitialUser(): Promise<void> {
@@ -135,7 +176,8 @@ async function seedInitialUser(): Promise<void> {
   await db.insert(users).values({
     username: initialUser,
     passwordHash,
-    displayName: initialUser
+    displayName: initialUser,
+    isAdmin: true // Initial user is always an admin
   })
 
   // Mark system as initialized - this can never be undone via .env manipulation
@@ -181,6 +223,12 @@ export default defineNitroPlugin(async () => {
 
     // Step 2: Seed initial user (only after migrations complete)
     await seedInitialUser()
+
+    // Step 3: Migrate existing users to admin (for upgrades)
+    await migrateExistingUsersToAdmin()
+
+    // Step 4: Clean up expired tokens
+    await cleanupExpiredTokens()
   } catch (error) {
     console.error('[init] Database initialization failed:', error)
     process.exit(1)

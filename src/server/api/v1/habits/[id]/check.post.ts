@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { db } from '@server/database'
 import { checkins } from '@server/database/schema'
-import { checkinSchema, validateBody } from '@server/utils/validation'
+import { checkinSchema, validateBody, validateUuidParam } from '@server/utils/validation'
 import { getTodayLocal } from '@server/utils/date'
 import { getHabitOrThrow } from '@server/utils/db-helpers'
 
@@ -42,7 +42,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'habit ID')
   const _habit = await getHabitOrThrow(event, id)
 
   const body = await validateBody(event, checkinSchema)

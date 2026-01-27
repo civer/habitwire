@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '@server/database'
 import { habits } from '@server/database/schema'
 import { getHabitOrThrow } from '@server/utils/db-helpers'
+import { validateUuidParam } from '@server/utils/validation'
 
 defineRouteMeta({
   openAPI: {
@@ -20,7 +21,7 @@ defineRouteMeta({
 })
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')!
+  const id = validateUuidParam(getRouterParam(event, 'id'), 'habit ID')
   const habit = await getHabitOrThrow(event, id)
 
   // Soft delete - just archive

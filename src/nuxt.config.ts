@@ -41,7 +41,9 @@ export default defineNuxtConfig({
     rateLimitPerMinute: 1000, // RATE_LIMIT_PER_MINUTE from .env
     public: {
       version: pkg.version,
-      isCapacitorBuild
+      isCapacitorBuild,
+      hostedMode: false, // NUXT_PUBLIC_HOSTED_MODE
+      hostedUrl: '' // NUXT_PUBLIC_HOSTED_URL
     }
   },
 
@@ -60,6 +62,54 @@ export default defineNuxtConfig({
       }
     },
     '/api/v1/auth/password': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 5,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/register': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 3,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/magic-link/request': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 3,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/magic-link/verify': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 5,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/password-reset/request': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 3,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/password-reset/verify': {
+      security: {
+        rateLimiter: {
+          tokensPerInterval: 5,
+          interval: 60000
+        }
+      }
+    },
+    '/api/v1/auth/mobile-login': {
       security: {
         rateLimiter: {
           tokensPerInterval: 5,

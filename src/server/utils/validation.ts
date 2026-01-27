@@ -208,6 +208,74 @@ export const createApiKeySchema = z.object({
 })
 
 // ============================================================
+// Admin User Schemas
+// ============================================================
+
+export const createUserSchema = z.object({
+  username: z.string().min(1, 'Username is required').max(100),
+  email: z.string().email('Invalid email').nullable().optional(),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  display_name: z.string().max(100).nullable().optional(),
+  is_admin: z.boolean().default(false)
+})
+
+export const updateUserSchema = z.object({
+  username: z.string().min(1).max(100).optional(),
+  email: z.string().email('Invalid email').nullable().optional(),
+  display_name: z.string().max(100).nullable().optional(),
+  is_admin: z.boolean().optional(),
+  email_verified: z.boolean().optional()
+})
+
+// ============================================================
+// Admin Settings Schema
+// ============================================================
+
+export const updateSystemSettingsSchema = z.object({
+  'auth.allowRegistration': z.boolean().optional(),
+  'auth.requireEmailVerification': z.boolean().optional(),
+  'auth.methods': z.array(z.enum(['password', 'magic-link'])).min(1).optional(),
+  'email.smtp.host': z.string().max(255).nullable().optional(),
+  'email.smtp.port': z.number().int().min(1).max(65535).optional(),
+  'email.smtp.user': z.string().max(255).nullable().optional(),
+  'email.smtp.password': z.string().max(500).nullable().optional(),
+  'email.smtp.from': z.string().email().nullable().optional(),
+  'email.smtp.secure': z.boolean().optional()
+})
+
+// ============================================================
+// Auth Extension Schemas
+// ============================================================
+
+export const registerSchema = z.object({
+  username: z.string().min(1, 'Username is required').max(100),
+  email: z.string().email('Invalid email').optional(),
+  password: z.string().min(8, 'Password must be at least 8 characters')
+})
+
+export const magicLinkRequestSchema = z.object({
+  email: z.string().email('Invalid email')
+})
+
+export const magicLinkVerifySchema = z.object({
+  token: z.string().min(1, 'Token is required')
+})
+
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email('Invalid email')
+})
+
+export const passwordResetVerifySchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters')
+})
+
+export const updateProfileSchema = z.object({
+  email: z.string().email('Invalid email').nullable().optional(),
+  display_name: z.string().max(100).nullable().optional()
+})
+
+// ============================================================
 // Query Parameter Schemas
 // ============================================================
 
@@ -227,6 +295,29 @@ export const habitsQuerySchema = z.object({
 export const statsQuerySchema = z.object({
   today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional()
 })
+
+// ============================================================
+// Helper function to validate UUID path parameters
+// ============================================================
+
+export function validateUuidParam(id: string | undefined, paramName: string = 'id'): string {
+  if (!id) {
+    throw createError({
+      statusCode: 400,
+      message: `Missing ${paramName} parameter`
+    })
+  }
+
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(id)) {
+    throw createError({
+      statusCode: 400,
+      message: `Invalid ${paramName} format`
+    })
+  }
+
+  return id
+}
 
 // ============================================================
 // Helper function to validate and parse request body

@@ -5,6 +5,7 @@ declare module '#auth-utils' {
     id: string
     username: string
     displayName?: string | null
+    isAdmin?: boolean | null
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
